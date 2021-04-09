@@ -1,32 +1,32 @@
 <h1 align="center">
   <br>
-  <img src="https://raw.githubusercontent.com/StylexTV/Bookmark/main/images/cover.png">
+  <img src="https://raw.githubusercontent.com/StylexTV/Lila/main/images/cover.png">
   <br>
 </h1>
 
 <h4 align="center">♟️ Source code of my Chess engine, made with ❤️ in Java.</h4>
 
 <p align="center">
-  <a href="https://GitHub.com/StylexTV/Bookmark/stargazers/">
-    <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Bookmark.svg?color=ffdd00"/>
+  <a href="https://GitHub.com/StylexTV/Lila/stargazers/">
+    <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Lila.svg?color=ffdd00"/>
   </a>
-  <a href="https://www.codacy.com/gh/StylexTV/Bookmark/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/Bookmark&amp;utm_campaign=Badge_Grade">
+  <a href="https://www.codacy.com/gh/StylexTV/Lila/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/Lila&amp;utm_campaign=Badge_Grade">
     <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/5225bdf319a24949a9b25ad42a839c38"/>
   </a>
   <a>
-    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Bookmark.svg"/>
+    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Lila.svg"/>
   </a>
   <a>
-    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/StylexTV/Bookmark.svg"/>
+    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/StylexTV/Lila.svg"/>
   </a>
   <a>
-    <img alt="Lines of Code" src="https://tokei.rs/b1/github/StylexTV/Bookmark?category=code"/>
+    <img alt="Lines of Code" src="https://tokei.rs/b1/github/StylexTV/Lila?category=code"/>
   </a>
 </p>
 
 ## What is it?
 This is a simple and interactive program in which you can play against my homemade chess AI.
-> A downloadable executable can be found [here](https://github.com/StylexTV/Bookmark/raw/main/executables/Bookmark.jar).
+> A downloadable executable can be found [here](https://github.com/StylexTV/Lila/raw/main/executables/Lila.jar).
 
 ## Progress
 As I work on this project, I will make sure to record the progress I have made.
