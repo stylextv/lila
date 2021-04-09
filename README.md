@@ -11,7 +11,7 @@
     <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Lila.svg?color=ffdd00"/>
   </a>
   <a href="https://www.codacy.com/gh/StylexTV/Lila/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/Lila&amp;utm_campaign=Badge_Grade">
-    <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/5225bdf319a24949a9b25ad42a839c38"/>
+    <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/fc5372689544422eb86e33876bbbed15"/>
   </a>
   <a>
     <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Lila.svg"/>
