@@ -22,6 +22,19 @@ public class BitBoard {
 	
 	public static final long FULL_BOARD = -1;
 	
+	public static final long LIGHT_SQUARES = -6172840429334713771l;
+	public static final long DARK_SQUARES = 6172840429334713770l;
+	
+	public static final long[] SINGLE_SQUARE = new long[64];
+	
+	static {
+		for(int i=0; i<SINGLE_SQUARE.length; i++) {
+			long l = 1l << i;
+			
+			SINGLE_SQUARE[i] = l;
+		}
+	}
+	
 	private long value;
 	
 	public BitBoard() {

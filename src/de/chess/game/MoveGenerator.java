@@ -59,7 +59,7 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, index - 8 * facing, index, 0, MoveFlag.NONE);
 			
-			possiblePawnMovesAdd ^= BoardConstants.BIT_SET[index];
+			possiblePawnMovesAdd ^= BitBoard.SINGLE_SQUARE[index];
 		}
 		
 		long possiblePawnDoubleMoves = possiblePawnMoves;
@@ -75,7 +75,7 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, index - 16 * facing, index, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
 			
-			possiblePawnDoubleMoves ^= BoardConstants.BIT_SET[index];
+			possiblePawnDoubleMoves ^= BitBoard.SINGLE_SQUARE[index];
 		}
 		
 		long opponentSquares = b.getBitBoard(opponentSide).getValue();
@@ -89,7 +89,7 @@ public class MoveGenerator {
 		int enPassant = b.getEnPassant();
 		
 		if(enPassant != BoardSquare.NONE) {
-			long moveTo = BoardConstants.BIT_SET[enPassant];
+			long moveTo = BitBoard.SINGLE_SQUARE[enPassant];
 			
 			if((pawnAttacksLeft & moveTo) != 0) {
 				list.addMove(enPassant - 8 * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
@@ -107,14 +107,14 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, index - 8 * facing + 1, index, b.getPieceType(index), MoveFlag.NONE);
 			
-			pawnAttacksLeft ^= BoardConstants.BIT_SET[index];
+			pawnAttacksLeft ^= BitBoard.SINGLE_SQUARE[index];
 		}
 		while(pawnAttacksRight != 0) {
 			int index = BitOperations.bitScanForward(pawnAttacksRight);
 			
 			addPawnMove(list, side, index - 8 * facing - 1, index, b.getPieceType(index), MoveFlag.NONE);
 			
-			pawnAttacksRight ^= BoardConstants.BIT_SET[index];
+			pawnAttacksRight ^= BitBoard.SINGLE_SQUARE[index];
 		}
 	}
 	
@@ -149,10 +149,10 @@ public class MoveGenerator {
 				
 				list.addMove(index, to, b.getPieceType(to), 0, MoveFlag.NONE);
 				
-				moves ^= BoardConstants.BIT_SET[to];
+				moves ^= BitBoard.SINGLE_SQUARE[to];
 			}
 			
-			knightSquares ^= BoardConstants.BIT_SET[index];
+			knightSquares ^= BitBoard.SINGLE_SQUARE[index];
 		}
 	}
 	
@@ -168,7 +168,7 @@ public class MoveGenerator {
 			
 			list.addMove(index, to, b.getPieceType(to), 0, MoveFlag.NONE);
 			
-			moves ^= BoardConstants.BIT_SET[to];
+			moves ^= BitBoard.SINGLE_SQUARE[to];
 		}
 		
 		if(side == PieceCode.WHITE) {
@@ -203,7 +203,7 @@ public class MoveGenerator {
 			
 			if(x == 0 || x == 7) break;
 			
-			if((emptySquares & BoardConstants.BIT_SET[square]) == 0) {
+			if((emptySquares & BitBoard.SINGLE_SQUARE[square]) == 0) {
 				return;
 			}
 		}
@@ -234,10 +234,10 @@ public class MoveGenerator {
 				
 				list.addMove(index, to, b.getPieceType(to), 0, MoveFlag.NONE);
 				
-				moves ^= BoardConstants.BIT_SET[to];
+				moves ^= BitBoard.SINGLE_SQUARE[to];
 			}
 			
-			squares ^= BoardConstants.BIT_SET[index];
+			squares ^= BitBoard.SINGLE_SQUARE[index];
 		}
 	}
 	

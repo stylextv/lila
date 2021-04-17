@@ -358,7 +358,7 @@ public class LookupTable {
 		for(int i = 0; i < bits; i++) {
 			int bitPos = BitOperations.bitScanForward(mask);
 			
-			mask ^= BoardConstants.BIT_SET[bitPos];
+			mask ^= BitBoard.SINGLE_SQUARE[bitPos];
 			
 			if((index & (1l << i)) != 0) {
 				blockers |= (1l << bitPos);

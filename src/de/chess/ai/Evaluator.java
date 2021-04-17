@@ -3,7 +3,8 @@ package de.chess.ai;
 import de.chess.game.BitBoard;
 import de.chess.game.BitOperations;
 import de.chess.game.Board;
-import de.chess.game.BoardConstants;
+import de.chess.game.LookupTable;
+import de.chess.game.MoveGenerator;
 import de.chess.game.PieceCode;
 
 public class Evaluator {
@@ -247,8 +248,7 @@ public class Evaluator {
 		{   93,  163,  -91,  192,  225}
 	};
 	
-	// make private
-	public static final int[][] MOBILITY_BONUS_MG = new int[][] {
+	private static final int[][] MOBILITY_BONUS_MG = new int[][] {
 		{-62, -53, -12,  -4,   3,  13,  22,  28,  33},
 	    {-48, -20,  16,  26,  38,  51,  55,  63,  63,  68,  81,  81,  91,  98},
 	    {-60, -20,   2,   3,   3,  11,  22,  31,  40,  40,  41,  48,  57,  57,  62},
@@ -314,6 +314,8 @@ public class Evaluator {
 		
 		score += evalPassedPawns(b, PieceCode.WHITE, false) - evalPassedPawns(b, PieceCode.BLACK, false);
 		
+		score += evalTacticalPieces(b, PieceCode.WHITE, false) - evalTacticalPieces(b, PieceCode.BLACK, false);
+		
 		score += evalSpace(b, PieceCode.WHITE) - evalSpace(b, PieceCode.BLACK);
 		
 		return score;
@@ -331,6 +333,8 @@ public class Evaluator {
 		score += evalPawnStructure(b, PieceCode.WHITE, true) - evalPawnStructure(b, PieceCode.BLACK, true);
 		
 		score += evalPassedPawns(b, PieceCode.WHITE, true) - evalPassedPawns(b, PieceCode.BLACK, true);
+		
+		score += evalTacticalPieces(b, PieceCode.WHITE, true) - evalTacticalPieces(b, PieceCode.BLACK, true);
 		
 		return score;
 	}
@@ -448,7 +452,7 @@ public class Evaluator {
 		return bonus;
 	}
 	
-	public static int evalMobility(Board b, int side, int[][] tables) {
+	private static int evalMobility(Board b, int side, int[][] tables) {
 		int opponentSide = (side + 1) % 2;
 		
 		long mobilityArea = BitBoard.FULL_BOARD;
@@ -470,11 +474,9 @@ public class Evaluator {
 		
 		mobilityArea &= BitOperations.inverse(excludedPawns);
 		
-		long blockersForKing = 0;
+		long blockersForKing = getKingBlockers(b, side);
 		
 		mobilityArea &= BitOperations.inverse(blockersForKing);
-		
-//		BitOperations.print(mobilityArea);
 		
 		int score = evalMobility(b, side, tables, PieceCode.KNIGHT, mobilityArea);
 		
@@ -483,6 +485,54 @@ public class Evaluator {
 		score += evalMobility(b, side, tables, PieceCode.QUEEN, mobilityArea);
 		
 		return score;
+	}
+	
+	private static long getKingBlockers(Board b, int side) {
+		int opponentSide = (side + 1) % 2;
+		
+		int kingSquare = b.getPieceIndex(PieceCode.getSpriteCode(side, PieceCode.KING), 0);
+		
+		long opponentBishopSliders = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(PieceCode.BISHOP).orReturn(b.getBitBoard(PieceCode.QUEEN)));
+		long opponentRookSliders = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(PieceCode.ROOK).orReturn(b.getBitBoard(PieceCode.QUEEN)));
+		
+		long bishopXRayMoves = MoveGenerator.getSliderMoves(kingSquare, opponentBishopSliders, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+		long rookXRayMoves = MoveGenerator.getSliderMoves(kingSquare, opponentRookSliders, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+		
+		long occupiedSquares = b.getBitBoard(PieceCode.WHITE).orReturn(b.getBitBoard(PieceCode.BLACK));
+		
+		long bishopMoves = MoveGenerator.getSliderMoves(kingSquare, occupiedSquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+		long rookMoves = MoveGenerator.getSliderMoves(kingSquare, occupiedSquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+		
+		long attackingBishopSliders = opponentBishopSliders & bishopXRayMoves;
+		long attackingRookSliders = opponentRookSliders & rookXRayMoves;
+		
+		long blockers = 0;
+		
+		while(attackingBishopSliders != 0) {
+			int attackingFrom = BitOperations.bitScanForward(attackingBishopSliders);
+			
+			long moves = MoveGenerator.getSliderMoves(attackingFrom, occupiedSquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+			
+			long pinnedPieces = moves & bishopMoves;
+			
+			blockers |= pinnedPieces;
+			
+			attackingBishopSliders ^= BitBoard.SINGLE_SQUARE[attackingFrom];
+		}
+		
+		while(attackingRookSliders != 0) {
+			int attackingFrom = BitOperations.bitScanForward(attackingRookSliders);
+			
+			long moves = MoveGenerator.getSliderMoves(attackingFrom, occupiedSquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+			
+			long pinnedPieces = moves & rookMoves;
+			
+			blockers |= pinnedPieces;
+			
+			attackingRookSliders ^= BitBoard.SINGLE_SQUARE[attackingFrom];
+		}
+		
+		return blockers;
 	}
 	
 	private static int evalMobility(Board b, int side, int[][] tables, int type, long mobilityArea) {
@@ -497,13 +547,61 @@ public class Evaluator {
 		for(int i=0; i<l; i++) {
 			int square = b.getPieceIndex(code, i);
 			
-			score += table[countMobility(b, side, type, square, mobilityArea)];
+			int n = countMobility(b, side, type, square, mobilityArea);
+			
+			score += table[n];
 		}
 		
 		return score;
 	}
 	
 	private static int countMobility(Board b, int side, int type, int square, long mobilityArea) {
+		long friendlyQueens = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.QUEEN));
+		
+		if(type == PieceCode.KNIGHT) {
+			long moves = LookupTable.KNIGHT_MOVES[square];
+			
+			moves &= mobilityArea;
+			moves &= BitOperations.inverse(friendlyQueens);
+			
+			return BitOperations.countBits(moves);
+		}
+		
+		long occupiedSquares = b.getBitBoard(PieceCode.WHITE).orReturn(b.getBitBoard(PieceCode.BLACK));
+		
+		long bishopXRaySquares = occupiedSquares & BitOperations.inverse(b.getBitBoard(PieceCode.QUEEN).getValue());
+		
+		long friendlyRooks = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.ROOK));
+		
+		long rookXRaySquares = bishopXRaySquares & BitOperations.inverse(friendlyRooks);
+		
+		if(type == PieceCode.BISHOP) {
+			long moves = MoveGenerator.getSliderMoves(square, bishopXRaySquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+			
+			moves &= mobilityArea;
+			moves &= BitOperations.inverse(friendlyQueens);
+			
+			return BitOperations.countBits(moves);
+		}
+		
+		if(type == PieceCode.ROOK) {
+			long moves = MoveGenerator.getSliderMoves(square, rookXRaySquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);;
+			
+			moves &= mobilityArea;
+			
+			return BitOperations.countBits(moves);
+		}
+		
+		if(type == PieceCode.QUEEN) {
+			long moves = MoveGenerator.getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+			
+			moves |= MoveGenerator.getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+			
+			moves &= mobilityArea;
+			
+			return BitOperations.countBits(moves);
+		}
+		
 		return 0;
 	}
 	
@@ -570,7 +668,7 @@ public class Evaluator {
 			
 			long supportedBy = neighbours & BitBoard.getRank(square - up);
 			
-			boolean isPhalanx = (BoardConstants.BIT_SET[square] & phalanxPawns) != 0;
+			boolean isPhalanx = (BitBoard.SINGLE_SQUARE[square] & phalanxPawns) != 0;
 			
 			long upperRanks = BitBoard.getLowerRanks(square, up);
 			
@@ -580,7 +678,7 @@ public class Evaluator {
 			
 			boolean isIsolated = (friendlyPawns & adjacentFiles) == 0;
 			
-			long advancingMask = BoardConstants.BIT_SET[square + up];
+			long advancingMask = BitBoard.SINGLE_SQUARE[square + up];
 			
 			boolean blocked = (opponentPawns & advancingMask) != 0;
 			
@@ -637,6 +735,27 @@ public class Evaluator {
 	
 	private static int evalPassedPawns(Board b, int side, boolean endgame) {
 		return 0;
+	}
+	
+	private static int evalTacticalPieces(Board b, int side, boolean endgame) {
+		long knights = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.KNIGHT));
+		long bishops = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.BISHOP));
+		long rooks = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.ROOK));
+		long queens = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.QUEEN));
+		
+		long minorPieces = knights | bishops;
+		
+		long allPawns = b.getBitBoard(PieceCode.PAWN).getValue();
+		
+		int down = side == PieceCode.WHITE ? BitOperations.SHIFT_DOWN : BitOperations.SHIFT_UP;
+		
+		int score = 0;
+		
+		score += BitOperations.countBits(BitOperations.shift(allPawns, down) & minorPieces) * (endgame ? 3 : 18);
+		
+		
+		
+		return score;
 	}
 	
 }

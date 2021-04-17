@@ -5,7 +5,7 @@ import java.awt.Font;
 
 public class Constants {
 	
-	public static final String NAME = "Bookmark";
+	public static final String NAME = "Lila";
 	public static final int ELO = 2550;
 	
 	public static final int WINDOW_DEFAULT_WIDTH = 1050;

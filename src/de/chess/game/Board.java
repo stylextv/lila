@@ -1,5 +1,6 @@
 package de.chess.game;
 
+
 import de.chess.ai.OpeningBook;
 import de.chess.ai.OpeningPosition;
 import de.chess.ai.Search;
@@ -57,12 +58,12 @@ public class Board {
 		
 //		LookupTable.initTables();
 		
+//		System.out.println("final eval: "+Evaluator.eval(this, PieceCode.WHITE));
+		
 //		System.out.println("---");
 //		System.out.println(Evaluator.evalMobility(this, PieceCode.WHITE, Evaluator.MOBILITY_BONUS_MG));
 //		System.out.println("---");
 //		System.out.println(Evaluator.evalMobility(this, PieceCode.BLACK, Evaluator.MOBILITY_BONUS_MG));
-		
-//		System.out.println(Evaluator.evalTotalImbalance(this, false));
 	}
 	
 	public void parseFen(String fen) {
@@ -91,7 +92,7 @@ public class Board {
 				int color = PieceCode.getColorFromSpriteCode(code);
 				int type = PieceCode.getTypeFromSpriteCode(code);
 				
-				long key = BoardConstants.BIT_SET[square];
+				long key = BitBoard.SINGLE_SQUARE[square];
 				
 				bitBoards[color].xor(key);
 				bitBoards[type].xor(key);
@@ -216,7 +217,7 @@ public class Board {
 	}
 	
 	private void clearSquare(int index, int side, int type) {
-		long key = BoardConstants.BIT_SET[index];
+		long key = BitBoard.SINGLE_SQUARE[index];
 		
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
@@ -228,7 +229,7 @@ public class Board {
 	}
 	
 	private void setPiece(int index, int side, int type) {
-		long key = BoardConstants.BIT_SET[index];
+		long key = BitBoard.SINGLE_SQUARE[index];
 		
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
@@ -482,7 +483,7 @@ public class Board {
 	}
 	
 	public boolean isUnderAttack(int square, int defenderSide) {
-		long mask = BoardConstants.BIT_SET[square];
+		long mask = BitBoard.SINGLE_SQUARE[square];
 		
 		return (attackedBy((defenderSide + 1) % 2, PieceCode.ALL_PIECES) & mask) != 0;
 	}
@@ -593,7 +594,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BoardConstants.BIT_SET[square];
+			squares ^= BitBoard.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[code] = attacks;
@@ -613,7 +614,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BoardConstants.BIT_SET[square];
+			squares ^= BitBoard.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[code] = attacks;
@@ -633,7 +634,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BoardConstants.BIT_SET[square];
+			squares ^= BitBoard.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[code] = attacks;
@@ -655,7 +656,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BoardConstants.BIT_SET[square];
+			squares ^= BitBoard.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[code] = attacks;

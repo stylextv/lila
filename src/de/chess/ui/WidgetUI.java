@@ -221,7 +221,7 @@ public class WidgetUI {
 		
 		graphics.setFont(Constants.FONT_EXTRA_BOLD);
 		
-		graphics.setColor(Constants.COLOR_HISTORY_BLACK);
+		graphics.setColor(Constants.COLOR_BLACK);
 		
 		graphics.drawString(Constants.NAME, textX, textY);
 	}

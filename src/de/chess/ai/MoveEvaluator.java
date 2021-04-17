@@ -1,7 +1,7 @@
 package de.chess.ai;
 
+import de.chess.game.BitBoard;
 import de.chess.game.Board;
-import de.chess.game.BoardConstants;
 import de.chess.game.Move;
 import de.chess.game.MoveList;
 import de.chess.game.PieceCode;
@@ -64,7 +64,7 @@ public class MoveEvaluator {
 			
 			if(pieceType != PieceCode.PAWN) {
 				
-				boolean attackedByPawns = (b.attackedBy(opponentPawnCode) & BoardConstants.BIT_SET[m.getTo()]) != 0;
+				boolean attackedByPawns = (b.attackedBy(opponentPawnCode) & BitBoard.SINGLE_SQUARE[m.getTo()]) != 0;
 				
 				if(attackedByPawns) score -= ATTACKED_BY_PAWN_PENALTY;
 			}
