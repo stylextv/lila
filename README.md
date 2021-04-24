@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <img src="https://raw.githubusercontent.com/StylexTV/Lila/main/images/cover.png">
+  <img src="https://raw.githubusercontent.com/StylexTV/Lila/main/imgs/cover.png">
   <br>
 </h1>
 
@@ -25,33 +25,20 @@
 </p>
 
 ## What is it?
-This is a simple and interactive program in which you can play against my homemade chess AI.
-> A downloadable executable can be found [here](https://github.com/StylexTV/Lila/raw/main/executables/Lila.jar).
+Lila is a free, open source chess engine written in Java.
+> A runnable binary can be found [here](https://github.com/StylexTV/Lila/raw/main/bins/lila_3.jar).
 
-## Progress
-As I work on this project, I will make sure to record the progress I have made.
-
-Date | Version | Elo
---- | --- | ---
-30.03.21 | alpha 1.1.5 | 2550
-20.03.21 | alpha 1.1.4 | 2500
-20.03.21 | alpha 1.1.3 | 2450
-05.03.21 | alpha 1.1.2 | 2200
-03.03.21 | alpha 1.1.1 | 2050
-27.02.21 | alpha 1.1.0 | ~1900
-19.02.21 | pre-release 1.0.1 | ~1600
-07.02.21 | pre-release 1.0.0 | ~1400
+## How do I run it?
+This project is a UCI chess engine, which means that it does not contain an interface/gui, but is purely text-based. You can either run it from the command prompt via `java -jar lila.jar` or use a chess GUI (e.g. [Cute Chess](https://github.com/cutechess/cutechess)) in order to use it more conveniently.
 
 ## Project Layout
 Here you can see the current structure of the project.
 
 ```bash
-├─ 📂 executables/    # ✨ Executables (download and run)
-├─ 📂 src/            # 🌟 Source Files
-│  ├─ 📂 assets/          # ✒️ Program Assets
-│  │  └─ 📂 fonts/           # 📦 Fonts
-│  │  └─ 📂 textures/        # 📦 Textures
-│  │  └─ 📃 opening_book.txt # 📚 Opening Book
-│  ├─ 📂 de/chess/        # ✉️ Source Code
-└─ 📃 readme.md       # 📖 Read Me!
+├─ 📂 bins/              # ✨ Binaries
+├─ 📂 src/               # 🌟 Source Files
+│  └─ 📂 de/lila/            # ✉️ Source Code
+└─ 📃 CODE_OF_CONDUCT.md # 📌 Code of Conduct
+└─ 📃 LICENSE            # ⚖️ MIT License
+└─ 📃 README.md          # 📖 Read Me!
 ```
