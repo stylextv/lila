@@ -29,7 +29,8 @@ Lila is a free, open source chess engine written in Java.
 > A runnable binary can be found [here](https://github.com/StylexTV/Lila/raw/main/bins/lila_3.jar).
 
 ## How do I run it?
-This project is a UCI chess engine, which means that it does not contain an interface/gui, but is purely text-based. You can either run it from the command prompt via `java -jar lila.jar` or use a chess GUI (e.g. [Cute Chess](https://github.com/cutechess/cutechess)) in order to use it more conveniently.
+This project is a UCI chess engine, which means that it does not contain an interface/gui, but is purely text-based.
+You can either run it from the command prompt via `java -jar lila.jar` or use a chess GUI (e.g. [Cute Chess](https://github.com/cutechess/cutechess)) in order to use it more conveniently.
 
 ## Project Layout
 Here you can see the current structure of the project.
