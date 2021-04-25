@@ -16,6 +16,8 @@ public class MoveEvaluator {
 	
 	public static final int KILLER_MOVE_SCORE = TACTICAL_MOVE_SCORE;
 	
+	public static final int HISTORY_HEURISTIC_SCORE = 10000;
+	
 	private static final int[][] MVV_LVA = new int[8][8];
 	
 	private static final int[] VICTIM_SCORES = new int[] {
@@ -52,14 +54,17 @@ public class MoveEvaluator {
 			
 			int pieceType = b.getPieceType(m.getFrom());
 			
-			int score = 0;
+			int score;
 			
-			if(m.getCaptured() != 0 || m.getPromoted() != 0) {
+			if(m.isTactical()) {
 				
 				score = TACTICAL_MOVE_SCORE;
 				
 				if(m.getCaptured() != 0) score += MVV_LVA[m.getCaptured()][pieceType];
 				if(m.getPromoted() != 0) score += VICTIM_SCORES[m.getPromoted()] + 1000;
+			} else {
+				
+				score = HistoryHeuristic.getScore(b.getSide(), pieceType, m.getTo());
 			}
 			
 			if(pieceType != Piece.PAWN) {

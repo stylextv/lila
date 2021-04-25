@@ -10,7 +10,7 @@ public class KillerTable {
 	private static final Move[][] TABLE = new Move[BoardConstants.MAX_GAME_MOVES][SIZE];
 	
 	public static void storeMove(Move move, int ply) {
-		if(move.getCaptured() != 0 || move.getPromoted() != 0) return;
+		if(move.isTactical()) return;
 		
 		int hash = move.getHash();
 		

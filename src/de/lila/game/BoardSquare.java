@@ -4,11 +4,11 @@ public class BoardSquare {
 	
 	public static final int NONE = -1;
 	
-	private static char[] RANKS = new char[] {
+	private static final char[] RANKS = new char[] {
 			'8', '7', '6', '5', '4', '3', '2', '1'
 	};
 	
-	private static char[] FILES = new char[] {
+	private static final char[] FILES = new char[] {
 			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'
 	};
 	

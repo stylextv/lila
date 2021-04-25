@@ -26,6 +26,11 @@ public class GoCommand extends UCICommand {
 			int depth = Integer.parseInt(args[i]);
 			
 			Search.findBestMove(b, 0, depth);
+			
+		} else if(type.equalsIgnoreCase("movetime")) {
+			int time = Integer.parseInt(args[i]);
+			
+			Search.findBestMove(b, time, 0);
 		}
 	}
 	

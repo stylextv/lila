@@ -14,6 +14,8 @@ public class Piece {
 	
 	public static final int LAST = KING;
 	
+	public static final int TYPE_AMOUNT = 6;
+	
 	public static final int BOTH_SIDES = 8;
 	public static final int ALL_PIECES = 9;
 	
@@ -29,15 +31,15 @@ public class Piece {
 	}
 	
 	public static int getPiece(int side, int type) {
-		return type - PAWN + side * 6;
+		return type - PAWN + side * TYPE_AMOUNT;
 	}
 	
 	public static int getSideOfPiece(int p) {
-		return p / 6;
+		return p / TYPE_AMOUNT;
 	}
 	
 	public static int getTypeOfPiece(int p) {
-		return p % 6 + PAWN;
+		return p % TYPE_AMOUNT + PAWN;
 	}
 	
 	public static char getFenNotation(int p) {

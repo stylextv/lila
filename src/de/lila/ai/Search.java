@@ -1,6 +1,7 @@
 package de.lila.ai;
 
 import de.lila.game.Board;
+import de.lila.game.BoardConstants;
 import de.lila.game.Move;
 import de.lila.game.MoveGenerator;
 import de.lila.game.MoveList;
@@ -206,13 +207,13 @@ public class Search {
 				
 				boolean doFullDepthSearch = true;
 				
-				boolean captureOrPromotion = m.getCaptured() != 0 || m.getPromoted() != 0;
+				boolean isTactical = m.isTactical();
 				
 				// Late move reduction
 				
 				if(moveCount > 1) {
 					
-					if(depth > 2 && !inCheck && !captureOrPromotion && !b.isSideInCheck()) {
+					if(depth > 2 && !inCheck && !isTactical && !b.isSideInCheck()) {
 						int r = 1;
 						
 						int d = newDepth - r;
@@ -246,6 +247,8 @@ public class Search {
 			
 			if(alpha >= beta) {
 				KillerTable.storeMove(m, b.getHistoryPly());
+				
+				HistoryHeuristic.addToScore(b.getSide(), b.getPieceType(m.getFrom()), m.getTo(), depth);
 				
 				TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, bestMove, TranspositionEntry.TYPE_LOWER_BOUND, beta, b.getHistoryPly());
 				
@@ -364,9 +367,7 @@ public class Search {
 	}
 	
 	public static boolean isMateScore(int score) {
-		int maxDepth = 1000;
-		
-		return Math.abs(score) > MATE_SCORE - maxDepth;
+		return Math.abs(score) > MATE_SCORE - BoardConstants.MAX_GAME_MOVES;
 	}
 	
 	private static String convertScoreToString(int score) {

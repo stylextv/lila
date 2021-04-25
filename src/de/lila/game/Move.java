@@ -10,9 +10,7 @@ public class Move {
 	
 	private int flag;
 	
-	private int hash;
-	
-	private String notation;
+	private int hash = -1;
 	
 	private int score;
 	
@@ -26,18 +24,26 @@ public class Move {
 		this.promoted = promoted;
 		
 		this.flag = flag;
-		
-		this.hash = from | (to << 7) | (promoted << 14);
-		
-		initAlgebraicNotation();
 	}
 	
-	private void initAlgebraicNotation() {
-		notation = BoardSquare.getNotation(from) + BoardSquare.getNotation(to);
+	public int getHash() {
+		if(hash == -1) hash = from | (to << 7) | (promoted << 14);
+		
+		return hash;
+	}
+	
+	public String getAlgebraicNotation() {
+		String s = BoardSquare.getNotation(from) + BoardSquare.getNotation(to);
 		
 		if(promoted != 0) {
-			notation = notation + Piece.getFenNotation(promoted - Piece.PAWN + 6);
+			s = s + Piece.getFenNotation(promoted - Piece.PAWN + Piece.TYPE_AMOUNT);
 		}
+		
+		return s;
+	}
+	
+	public boolean isTactical() {
+		return captured != 0 || promoted != 0;
 	}
 	
 	public int getFrom() {
@@ -58,14 +64,6 @@ public class Move {
 	
 	public int getFlag() {
 		return flag;
-	}
-	
-	public int getHash() {
-		return hash;
-	}
-	
-	public String getAlgebraicNotation() {
-		return notation;
 	}
 	
 	public int getScore() {
