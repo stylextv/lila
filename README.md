@@ -32,6 +32,9 @@
 This project is a UCI chess engine, which means that it does not contain an interface/gui, but is purely text-based.  
 You can either run it from the command prompt via `java -jar lila.jar` or use a chess GUI (e.g. [Cute Chess](https://github.com/cutechess/cutechess)) in order to use it more conveniently.
 
+## Features
+Coming soon...
+
 ## Project Layout
 Here you can see the current structure of the project.
 
