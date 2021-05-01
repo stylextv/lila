@@ -327,7 +327,7 @@ public class LookupTable {
 	private static final long[][] ROOK_MOVES = new long[64][4096];
 	private static final long[][] BISHOP_MOVES = new long[64][1024];
 	
-	static {
+	public static void init() {
 		for(int square = 0; square < 64; square++) {
 			
 			for(int blockerIndex = 0; blockerIndex < (1l << ROOK_MAGIC_INDEX_BITS[square]); blockerIndex++) {

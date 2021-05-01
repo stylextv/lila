@@ -23,12 +23,18 @@ public class Search {
 	
 	private static Move responseMove;
 	
+	private static long startingTime;
+	
+	private static boolean abortSearch;
+	
 	private static int maxDepth;
 	
 	private static long visitedNodes;
 	
-	public static void findBestMove(Board b, int time, int depth) {
-		long before = System.currentTimeMillis();
+	public static void findBestMove(Board b, int time, int depth, long startTime) {
+		startingTime = startTime;
+		
+		abortSearch = false;
 		
 		allocatedTime = time;
 		minSearchDepth = depth;
@@ -40,12 +46,14 @@ public class Search {
 		
 		int currentDepth = 1;
 		
-		while(currentDepth <= minSearchDepth || System.currentTimeMillis() - before < allocatedTime) {
-			score = startSearch(b, currentDepth, score);
+		while((minSearchDepth == 0 || currentDepth <= minSearchDepth) && !abortSearch) {
+			int currentScore = startSearch(b, currentDepth, score);
+			
+			if(!abortSearch) score = currentScore;
 			
 			String scoreString = convertScoreToString(score);
 			
-			int ms = (int) (System.currentTimeMillis() - before);
+			int ms = (int) (System.currentTimeMillis() - startingTime);
 			
 			int nps = (int) (visitedNodes / (ms / 1000f));
 			
@@ -55,6 +63,10 @@ public class Search {
 		}
 		
 		System.out.println("bestmove " + responseMove.getAlgebraicNotation());
+	}
+	
+	public static void abort() {
+		abortSearch = true;
 	}
 	
 	private static int startSearch(Board b, int depth, int lastScore) {
@@ -118,9 +130,11 @@ public class Search {
 		
 		if(alpha >= beta) type = TranspositionEntry.TYPE_LOWER_BOUND;
 		
-		TranspositionTable.putEntry(b.getPositionKey(), depth, 0, bestMove, type, alpha, b.getHistoryPly());
-		
-		responseMove = bestMove;
+		if(!abortSearch) {
+			TranspositionTable.putEntry(b.getPositionKey(), depth, 0, bestMove, type, alpha, b.getHistoryPly());
+			
+			responseMove = bestMove;
+		}
 		
 		return alpha;
 	}
@@ -129,6 +143,12 @@ public class Search {
 		if(depth <= 0) {
 			return quiesce(b, plyFromRoot, alpha, beta);
 		}
+		
+		if(!abortSearch && allocatedTime != 0 && System.currentTimeMillis() - startingTime >= allocatedTime) {
+			abortSearch = true;
+		}
+		
+		if(abortSearch) return 0;
 		
 		if(plyFromRoot + 1 > maxDepth) {
 			maxDepth = plyFromRoot + 1;
@@ -246,11 +266,13 @@ public class Search {
 			b.undoMove(m);
 			
 			if(alpha >= beta) {
-				KillerTable.storeMove(m, b.getHistoryPly());
-				
-				HistoryHeuristic.addToScore(b.getSide(), b.getPieceType(m.getFrom()), m.getTo(), depth);
-				
-				TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, bestMove, TranspositionEntry.TYPE_LOWER_BOUND, beta, b.getHistoryPly());
+				if(!abortSearch) {
+					KillerTable.storeMove(m, b.getHistoryPly());
+					
+					HistoryHeuristic.addToScore(b.getSide(), b.getPieceType(m.getFrom()), m.getTo(), depth);
+					
+					TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, bestMove, TranspositionEntry.TYPE_LOWER_BOUND, beta, b.getHistoryPly());
+				}
 				
 				return alpha;
 			}
@@ -269,12 +291,12 @@ public class Search {
 				score = b.getSide() == winner ? i : -i;
 			}
 			
-			TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, null, TranspositionEntry.TYPE_EXACT, score, b.getHistoryPly());
+			if(!abortSearch) TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, null, TranspositionEntry.TYPE_EXACT, score, b.getHistoryPly());
 			
 			return score;
 		}
 		
-		TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, bestMove, type, alpha, b.getHistoryPly());
+		if(!abortSearch) TranspositionTable.putEntry(b.getPositionKey(), depth, plyFromRoot, bestMove, type, alpha, b.getHistoryPly());
 		
 		return alpha;
 	}
@@ -333,7 +355,7 @@ public class Search {
 			b.undoMove(m);
 			
 			if(hasDoneMove && score >= beta) {
-				KillerTable.storeMove(m, b.getHistoryPly());
+				if(!abortSearch) KillerTable.storeMove(m, b.getHistoryPly());
 				
 				return beta;
 			}

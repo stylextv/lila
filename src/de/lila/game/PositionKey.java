@@ -11,7 +11,7 @@ public class PositionKey {
 	public static final int EN_PASSANT_OFFSET = 13 * 64 + 1;
 	public static final int CASTLING_OFFSET = 13 * 64 + 1 + 8;
 	
-	static {
+	public static void init() {
 		Random random = new Random(2361912); // 1070372
 		
 		for(int i=0; i<RANDOM_NUMBERS.length; i++) {

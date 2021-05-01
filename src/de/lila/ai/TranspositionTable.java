@@ -6,27 +6,33 @@ public class TranspositionTable {
 	
 	private static final int SIZE = 27;
 	
-	private static final TranspositionEntry[] MAP = new TranspositionEntry[1 << SIZE];
+	private static TranspositionEntry[] map;
 	
-	private static final long LOOKUP_MASK = MAP.length - 1;
+	private static long lookupMask;
+	
+	public static void init() {
+		map = new TranspositionEntry[1 << SIZE];
+		
+		lookupMask = map.length - 1;
+	}
 	
 	public static void putEntry(long key, int depth, int plyFromRoot, Move m, int type, int score, int age) {
 		int index = getMapIndex(key);
 		
-		TranspositionEntry old = MAP[index];
+		TranspositionEntry old = map[index];
 		
-		if(old == null || shouldReplace(depth, type, age, old)) MAP[index] = new TranspositionEntry(key, depth, plyFromRoot, m, type, score, age);
+		if(old == null || shouldReplace(depth, type, age, old)) map[index] = new TranspositionEntry(key, depth, plyFromRoot, m, type, score, age);
 	}
 	
 	public static TranspositionEntry getEntry(long key) {
-		TranspositionEntry e = MAP[getMapIndex(key)];
+		TranspositionEntry e = map[getMapIndex(key)];
 		
 		if(e == null || e.getPositionKey() != key) return null;
 		return e;
 	}
 	
 	private static int getMapIndex(long key) {
-		return (int) (key & LOOKUP_MASK);
+		return (int) (key & lookupMask);
 	}
 	
 	private static boolean shouldReplace(int depth, int type, int age, TranspositionEntry old) {

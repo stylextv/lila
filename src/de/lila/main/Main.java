@@ -3,6 +3,10 @@ package de.lila.main;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
+import de.lila.ai.SearchExecutor;
+import de.lila.ai.TranspositionTable;
+import de.lila.game.LookupTable;
+import de.lila.game.PositionKey;
 import de.lila.uci.UCIController;
 
 public class Main {
@@ -15,6 +19,8 @@ public class Main {
 	
 	public static void main(String[] args) {
 		try {
+			init();
+			
 			controller = new UCIController();
 			
 			controller.init();
@@ -32,8 +38,20 @@ public class Main {
 		}
 	}
 	
+	private static void init() {
+		LookupTable.init();
+		
+		PositionKey.init();
+		
+		TranspositionTable.init();
+		
+		SearchExecutor.init();
+	}
+	
 	public static void quit() {
 		running = false;
+		
+		SearchExecutor.shutdown();
 	}
 	
 	public static UCIController getController() {

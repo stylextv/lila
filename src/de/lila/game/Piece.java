@@ -21,7 +21,7 @@ public class Piece {
 	
 	public static final int BISHOP_PAIR = -1;
 	
-	private static char[] FEN_NOTATIONS = new char[] {
+	private static final char[] FEN_NOTATIONS = new char[] {
 			'P', 'N', 'B', 'R', 'Q', 'K',
 			'p', 'n', 'b', 'r', 'q', 'k'
 	};

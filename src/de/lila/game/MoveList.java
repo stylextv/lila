@@ -29,8 +29,7 @@ public class MoveList {
 	}
 	
 	public void addMove(int from, int to, int captured, int promoted, int flag) {
-		moves[count] = new Move(from, to, captured, promoted, flag);
-		count++;
+		addMove(new Move(from, to, captured, promoted, flag));
 	}
 	
 	public void addMove(Move m) {
