@@ -1,4 +1,4 @@
-package de.lila.uci;
+package de.lila.command;
 
 public class ReadyCommand extends UCICommand {
 	

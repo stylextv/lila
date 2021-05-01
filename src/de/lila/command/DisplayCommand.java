@@ -1,4 +1,4 @@
-package de.lila.uci;
+package de.lila.command;
 
 import de.lila.game.Board;
 import de.lila.main.Main;

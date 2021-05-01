@@ -11,8 +11,10 @@ public class SearchExecutor {
 	
 	private static ThreadPoolExecutor threadPool;
 	
-	public static void init() {
-		threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(1);
+	public static void changeThreadAmount(int n) {
+		if(threadPool != null) threadPool.shutdown();
+		
+		threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(n);
 	}
 	
 	public static void startSearch(Board b, int time, int depth) {
@@ -26,7 +28,7 @@ public class SearchExecutor {
 	}
 	
 	public static void shutdown() {
-		threadPool.shutdownNow();
+		threadPool.shutdown();
 		
 		stopCurrentSearch();
 	}

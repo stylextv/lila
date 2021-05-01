@@ -1,10 +1,11 @@
-package de.lila.uci;
+package de.lila.command;
 
 public abstract class UCICommand {
 	
 	private static final UCICommand[] COMMANDS = new UCICommand[] {
 			new CheckCommand(),
 			new ReadyCommand(),
+			new SetOptionCommand(),
 			new NewGameCommand(),
 			new PositionCommand(),
 			new GoCommand(),
