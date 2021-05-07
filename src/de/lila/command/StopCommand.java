@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.ai.SearchExecutor;
 
 public class StopCommand extends UCICommand {
@@ -9,7 +11,7 @@ public class StopCommand extends UCICommand {
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		SearchExecutor.stopCurrentSearch();
 	}
 	

@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.main.Constants;
 import de.lila.option.Options;
 import de.lila.option.UCIOption;
@@ -11,7 +13,7 @@ public class CheckCommand extends UCICommand {
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		System.out.println("id name " + Constants.NAME);
 		System.out.println("id author " + Constants.AUTHOR);
 		System.out.println("");

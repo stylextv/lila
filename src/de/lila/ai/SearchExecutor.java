@@ -7,8 +7,6 @@ import de.lila.game.Board;
 
 public class SearchExecutor {
 	
-	private static final int CONNECTION_TIME_COMPENSATION = 10;
-	
 	private static ThreadPoolExecutor threadPool;
 	
 	public static void changeThreadAmount(int n) {
@@ -17,10 +15,10 @@ public class SearchExecutor {
 		threadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(n);
 	}
 	
-	public static void startSearch(Board b, int time, int depth) {
-		long startTime = System.currentTimeMillis() - CONNECTION_TIME_COMPENSATION;
+	public static void startSearch(Board b, int depth, int time) {
+		long startTime = System.currentTimeMillis();
 		
-		threadPool.submit(() -> Search.findBestMove(b, time, depth, startTime));
+		threadPool.submit(() -> Search.findBestMove(b, depth, time, startTime));
 	}
 	
 	public static void stopCurrentSearch() {

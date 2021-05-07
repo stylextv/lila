@@ -17,9 +17,9 @@ public class Search {
 	
 	private static final int NULL_MOVE_REDUCTION = 2;
 	
-	private static int allocatedTime;
-	
 	private static int minSearchDepth;
+	
+	private static int allocatedTime;
 	
 	private static Move responseMove;
 	
@@ -31,13 +31,13 @@ public class Search {
 	
 	private static long visitedNodes;
 	
-	public static void findBestMove(Board b, int time, int depth, long startTime) {
+	public static void findBestMove(Board b, int depth, int time, long startTime) {
 		startingTime = startTime;
 		
 		abortSearch = false;
 		
-		allocatedTime = time;
 		minSearchDepth = depth;
+		allocatedTime = time;
 		
 		maxDepth = 0;
 		visitedNodes = 0;

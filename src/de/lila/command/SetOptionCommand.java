@@ -1,27 +1,19 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.option.Options;
 import de.lila.option.UCIOption;
-import de.lila.util.StringUtil;
 
 public class SetOptionCommand extends UCICommand {
 	
 	public SetOptionCommand() {
-		super("setoption");
+		super("setoption", "name", "value");
 	}
 	
 	@Override
-	public void execute(String[] args) {
-		String name = "";
-		String valueString = null;
-		
-		if(args.length > 2 && args[1].equalsIgnoreCase("name")) {
-			name = args[2];
-		}
-		
-		if(args.length > 4 && args[3].equalsIgnoreCase("value")) {
-			valueString = StringUtil.collapseArray(args, 4, args.length - 1);
-		}
+	public void execute(HashMap<String, String> args) {
+		String name = args.get("name");
 		
 		UCIOption option = Options.getOption(name);
 		
@@ -31,7 +23,7 @@ public class SetOptionCommand extends UCICommand {
 			return;
 		}
 		
-		option.getField().setValue(valueString);
+		option.getField().setValue(args.get("value"));
 	}
 	
 }

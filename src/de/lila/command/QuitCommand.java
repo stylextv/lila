@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.main.Main;
 
 public class QuitCommand extends UCICommand {
@@ -9,7 +11,7 @@ public class QuitCommand extends UCICommand {
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		Main.quit();
 	}
 	

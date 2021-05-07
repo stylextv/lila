@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.game.Board;
 import de.lila.main.Constants;
 
@@ -20,8 +22,39 @@ public class UCIController {
 		
 		UCICommand c = UCICommand.getCommand(name);
 		
-		if(c != null) c.execute(args);
-		else System.out.println("Unknown command: " + name);
+		if(c == null) {
+			System.out.println("Unknown command: " + name);
+			
+			return;
+		}
+		
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		String currentToken = null;
+		String currentValue = null;
+		
+		for(String arg : args) {
+			if(c.isToken(arg)) {
+				
+				if(currentToken != null) {
+					map.put(currentToken, currentValue);
+				}
+				
+				currentToken = arg.toLowerCase();
+				
+				currentValue = "";
+				
+			} else if(currentToken != null) {
+				
+				currentValue = currentValue.isBlank() ? arg : currentValue + " " + arg;
+			}
+		}
+		
+		if(currentToken != null) {
+			map.put(currentToken, currentValue);
+		}
+		
+		c.execute(map);
 	}
 	
 	public Board getBoard() {

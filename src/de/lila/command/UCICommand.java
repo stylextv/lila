@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 public abstract class UCICommand {
 	
 	private static final UCICommand[] COMMANDS = new UCICommand[] {
@@ -11,16 +13,28 @@ public abstract class UCICommand {
 			new GoCommand(),
 			new StopCommand(),
 			new DisplayCommand(),
+			new PerftCommand(),
 			new QuitCommand()
 	};
 	
 	private String name;
 	
-	public UCICommand(String name) {
+	private String[] tokens;
+	
+	public UCICommand(String name, String... tokens) {
 		this.name = name;
+		this.tokens = tokens;
 	}
 	
-	public abstract void execute(String[] args);
+	public abstract void execute(HashMap<String, String> args);
+	
+	public boolean isToken(String s) {
+		for(String token : tokens) {
+			if(token.equalsIgnoreCase(s)) return true;
+		}
+		
+		return false;
+	}
 	
 	public String getName() {
 		return name;

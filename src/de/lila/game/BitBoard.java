@@ -30,10 +30,12 @@ public class BitBoard {
 	public static final long[] SINGLE_SQUARE = new long[64];
 	
 	static {
-		for(int i=0; i<SINGLE_SQUARE.length; i++) {
-			long l = 1l << i;
-			
+		long l = 1;
+		
+		for(int i = 0; i < SINGLE_SQUARE.length; i++) {
 			SINGLE_SQUARE[i] = l;
+			
+			l <<= 1;
 		}
 	}
 	
@@ -92,7 +94,7 @@ public class BitBoard {
 	}
 	
 	public static long getAdjacentFiles(int square) {
-		long l = 0;
+		long l = NO_SQUARES;
 		
 		int x = square % 8;
 		
@@ -103,7 +105,7 @@ public class BitBoard {
 	}
 	
 	public static long getLowerRanks(int square, int dir) {
-		long l = 0;
+		long l = NO_SQUARES;
 		
 		int y = square / 8;
 		

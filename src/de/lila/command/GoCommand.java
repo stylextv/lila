@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.ai.SearchExecutor;
 import de.lila.game.Board;
 import de.lila.main.Main;
@@ -7,31 +9,20 @@ import de.lila.main.Main;
 public class GoCommand extends UCICommand {
 	
 	public GoCommand() {
-		super("go");
+		super("go", "depth", "movetime");
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		Board b = Main.getController().getBoard();
 		
-		int i = 1;
+		String s1 = args.get("depth");
+		String s2 = args.get("movetime");
 		
-		if(args.length <= i) return;
+		int depth = s1 == null ? 0 : Integer.parseInt(s1);
+		int time = s2 == null ? 0 : Integer.parseInt(s2);
 		
-		String type = args[i];
-		
-		i++;
-		
-		if(type.equalsIgnoreCase("depth")) {
-			int depth = Integer.parseInt(args[i]);
-			
-			SearchExecutor.startSearch(b, 0, depth);
-			
-		} else if(type.equalsIgnoreCase("movetime")) {
-			int time = Integer.parseInt(args[i]);
-			
-			SearchExecutor.startSearch(b, time, 0);
-		}
+		SearchExecutor.startSearch(b, depth, time);
 	}
 	
 }

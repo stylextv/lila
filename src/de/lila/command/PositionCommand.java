@@ -1,46 +1,41 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 import de.lila.game.Board;
 import de.lila.game.BoardConstants;
 import de.lila.game.Move;
 import de.lila.game.MoveGenerator;
 import de.lila.game.MoveList;
 import de.lila.main.Main;
-import de.lila.util.StringUtil;
 
 public class PositionCommand extends UCICommand {
 	
 	public PositionCommand() {
-		super("position");
+		super("position", "startpos", "fen", "moves");
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		Board b = Main.getController().getBoard();
 		
-		int i = 1;
+		String fen = args.get("startpos") == null ? null : BoardConstants.STARTING_POSITION;
 		
-		if(args.length <= i) return;
+		String inputFen = args.get("fen");
 		
-		String fen;
+		if(inputFen != null) fen = inputFen;
 		
-		if(args[i].equalsIgnoreCase("startpos")) {
-			fen = BoardConstants.STARTING_POSITION;
-			
-			i++;
-		} else if(args[i].equalsIgnoreCase("fen")) {
-			fen = StringUtil.collapseArray(args, i + 1, i + 6);
-			
-			i += 7;
-		} else return;
+		if(fen == null) return;
 		
 		b.parseFen(fen);
 		
-		if(args.length > i && args[i].equalsIgnoreCase("moves")) {
+		String moves = args.get("moves");
+		
+		if(moves != null) {
 			
-			for(int j = i + 1; j < args.length; j++) {
-				String s = args[j];
-				
+			String[] arr = moves.split(" ");
+			
+			for(String s : arr) {
 				MoveList list = new MoveList();
 				
 				MoveGenerator.generateAllMoves(b, list);

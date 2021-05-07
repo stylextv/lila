@@ -1,5 +1,7 @@
 package de.lila.command;
 
+import java.util.HashMap;
+
 public class ReadyCommand extends UCICommand {
 	
 	public ReadyCommand() {
@@ -7,7 +9,7 @@ public class ReadyCommand extends UCICommand {
 	}
 	
 	@Override
-	public void execute(String[] args) {
+	public void execute(HashMap<String, String> args) {
 		System.out.println("readyok");
 	}
 	
