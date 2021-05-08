@@ -36,10 +36,6 @@ public class Main {
 	}
 	
 	private static void init() {
-		controller = new UCIController();
-		
-		controller.init();
-		
 		LookupTable.init();
 		
 		PositionKey.init();
@@ -47,6 +43,10 @@ public class Main {
 		TranspositionTable.init();
 		
 		Options.init();
+		
+		controller = new UCIController();
+		
+		controller.init();
 	}
 	
 	public static void quit() {

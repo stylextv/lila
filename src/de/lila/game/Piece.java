@@ -2,6 +2,8 @@ package de.lila.game;
 
 public class Piece {
 	
+	public static final int NO_PIECE = -1;
+	
 	public static final int WHITE = 0;
 	public static final int BLACK = 1;
 	
@@ -51,7 +53,7 @@ public class Piece {
 			if(FEN_NOTATIONS[i] == ch) return i;
 		}
 		
-		return -1;
+		return Piece.NO_PIECE;
 	}
 	
 }

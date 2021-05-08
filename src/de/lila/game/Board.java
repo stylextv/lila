@@ -67,11 +67,11 @@ public class Board {
 		for(char ch : piecePosition) {
 			int p = Piece.getPieceFromFenNotation(ch);
 			
-			if(p == -1) {
+			if(p == Piece.NO_PIECE) {
 				int a = Integer.parseInt("" + ch);
 				
 				for(int i=0; i<a; i++) {
-					pieces[square] = -1;
+					pieces[square] = Piece.NO_PIECE;
 					
 					square++;
 				}
@@ -143,7 +143,7 @@ public class Board {
 			for(int x=0; x<8; x++) {
 				int p = pieces[y * 8 +x];
 				
-				if(p == -1) {
+				if(p == Piece.NO_PIECE) {
 					emptySquares++;
 				} else {
 					if(emptySquares != 0) {
@@ -204,7 +204,7 @@ public class Board {
 				
 				int p = pieces[y * 8 + x];
 				
-				if(p != -1) ch = Piece.getFenNotation(p);
+				if(p != Piece.NO_PIECE) ch = Piece.getFenNotation(p);
 				
 				line = line + ch + " | ";
 			}
@@ -234,7 +234,7 @@ public class Board {
 	public int getPieceType(int index) {
 		int p = pieces[index];
 		
-		if(p == -1) return 0;
+		if(p == Piece.NO_PIECE) return 0;
 		
 		return Piece.getTypeOfPiece(p);
 	}
@@ -248,7 +248,7 @@ public class Board {
 		positionKey ^= PositionKey.getRandomNumber(pieces[index] * 64 + index);
 		positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + index);
 		
-		pieces[index] = -1;
+		pieces[index] = Piece.NO_PIECE;
 	}
 	
 	private void setPiece(int index, int side, int type) {
@@ -481,7 +481,7 @@ public class Board {
 		for(int i=0; i<64; i++) {
 			int p = pieces[i];
 			
-			if(p != -1) {
+			if(p != Piece.NO_PIECE) {
 				int l = pieceCounters[p];
 				
 				pieceIndices[p][l] = i;

@@ -29,7 +29,7 @@ public class PositionKey {
 		for(int i=0; i<b.getPieces().length; i++) {
 			int p = b.getPieces()[i];
 			
-			if(p == -1) key ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + i);
+			if(p == Piece.NO_PIECE) key ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + i);
 			else key ^= PositionKey.getRandomNumber(p * 64 + i);
 		}
 		
