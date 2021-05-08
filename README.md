@@ -35,6 +35,9 @@ You can either run it from the command prompt via `java -jar lila.jar` or use a 
 ## Features
 Coming soon...
 
+## Commands
+Coming soon...
+
 ## Project Layout
 Here you can see the current structure of the project.
 
