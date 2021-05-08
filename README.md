@@ -25,7 +25,7 @@
 </p>
 
 ## What is it?
-[Lila](https://lilachess.github.io/) is a free, open source chess engine written in Java.
+Lila is a free, open source chess engine written in Java.
 > A runnable binary can be found [here](https://github.com/StylexTV/Lila/raw/main/bins/lila_3.0.0.jar).
 
 ## How do I run it?
