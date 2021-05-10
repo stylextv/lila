@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import de.lila.ai.SearchExecutor;
-import de.lila.ai.TranspositionTable;
 import de.lila.command.UCIController;
 import de.lila.game.LookupTable;
 import de.lila.game.PositionKey;
@@ -39,8 +38,6 @@ public class Main {
 		LookupTable.init();
 		
 		PositionKey.init();
-		
-		TranspositionTable.init();
 		
 		Options.init();
 		

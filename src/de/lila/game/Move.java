@@ -2,6 +2,8 @@ package de.lila.game;
 
 public class Move {
 	
+	public static final int MEMORY_SIZE = 6 * 4 + 2 + 1;
+	
 	private int from;
 	private int to;
 	
@@ -10,7 +12,7 @@ public class Move {
 	
 	private int flag;
 	
-	private int hash = -1;
+	private short hash = -1;
 	
 	private int score;
 	
@@ -26,8 +28,8 @@ public class Move {
 		this.flag = flag;
 	}
 	
-	public int getHash() {
-		if(hash == -1) hash = from | (to << 7) | (promoted << 14);
+	public short getHash() {
+		if(hash == -1) hash = (short) (from | (to << 6) | (promoted << 12));
 		
 		return hash;
 	}

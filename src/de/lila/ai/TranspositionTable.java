@@ -4,14 +4,14 @@ import de.lila.game.Move;
 
 public class TranspositionTable {
 	
-	private static final int SIZE = 27;
-	
 	private static TranspositionEntry[] map;
 	
 	private static long lookupMask;
 	
-	public static void init() {
-		map = new TranspositionEntry[1 << SIZE];
+	public static void changeSize(int size) {
+		long l = (size * 1000000l) / TranspositionEntry.MEMORY_SIZE;
+		
+		map = new TranspositionEntry[Integer.highestOneBit((int) l)];
 		
 		lookupMask = map.length - 1;
 	}
@@ -36,7 +36,7 @@ public class TranspositionTable {
 	}
 	
 	private static boolean shouldReplace(int depth, int type, int age, TranspositionEntry old) {
-		return type == TranspositionEntry.TYPE_EXACT || depth > old.getDepth() || age > old.getAge();
+		return type == TranspositionEntry.TYPE_EXACT || age > old.getAge() || (old.getType() != TranspositionEntry.TYPE_EXACT && depth > old.getDepth());
 	}
 	
 }

@@ -6,7 +6,7 @@ public class Board {
 	
 	private int[] pieces = new int[BoardConstants.BOARD_SIZE_SQ];
 	
-	private int[][] pieceIndices = new int[12][11];
+	private int[][] pieceSquares = new int[12][11];
 	
 	private int[] pieceCounters = new int[12];
 	
@@ -192,9 +192,7 @@ public class Board {
 	}
 	
 	public void print() {
-		System.out.println("");
-		
-		System.out.println(" +---+---+---+---+---+---+---+---+");
+		System.out.println("\n +---+---+---+---+---+---+---+---+");
 		
 		for(int y = 0; y < 8; y++) {
 			String line = " | ";
@@ -214,25 +212,18 @@ public class Board {
 			System.out.println(" +---+---+---+---+---+---+---+---+");
 		}
 		
-		String files = "";
+		System.out.println("   a   b   c   d   e   f   g   h\n");
 		
-		for(int i = 0; i < 8; i++) {
-			files = files + "   " + (char) ('a' + i);
-		}
-		
-		System.out.println(files);
-		
-		System.out.println("");
 		System.out.println("Fen: " + getFen());
 		System.out.println("Key: " + positionKey);
 	}
 	
-	public int getPiece(int index) {
-		return pieces[index];
+	public int getPiece(int square) {
+		return pieces[square];
 	}
 	
-	public int getPieceType(int index) {
-		int p = pieces[index];
+	public int getPieceType(int square) {
+		int p = pieces[square];
 		
 		if(p == Piece.NO_PIECE) return 0;
 		
@@ -333,7 +324,7 @@ public class Board {
 			
 		} else if(castlePerms != Castling.BOTH) {
 			
-			if(m.getFrom() == MoveGenerator.KING_START_POSITION[side]) {
+			if(m.getFrom() == BoardConstants.KING_START_POSITION[side]) {
 				removeCastlePerms(side);
 			}
 			
@@ -484,7 +475,7 @@ public class Board {
 			if(p != Piece.NO_PIECE) {
 				int l = pieceCounters[p];
 				
-				pieceIndices[p][l] = i;
+				pieceSquares[p][l] = i;
 				
 				pieceCounters[p] = l + 1;
 			}
@@ -515,10 +506,10 @@ public class Board {
 		return pieceCounters[p];
 	}
 	
-	public int getPieceIndex(int p, int i) {
+	public int getPieceSquare(int p, int i) {
 		countPieces();
 		
-		return pieceIndices[p][i];
+		return pieceSquares[p][i];
 	}
 	
 	private void calculateAttacks() {
@@ -722,8 +713,8 @@ public class Board {
 	private void updateCastlePerms(int side, int from, int to, int rookIndex) {
 		int square;
 		
-		if(rookIndex == 0) square = MoveGenerator.LEFT_ROOK_START_POSITION[side];
-		else square = MoveGenerator.RIGHT_ROOK_START_POSITION[side];
+		if(rookIndex == 0) square = BoardConstants.LEFT_ROOK_START_POSITION[side];
+		else square = BoardConstants.RIGHT_ROOK_START_POSITION[side];
 		
 		if(from == square || to == square) {
 			int mask;

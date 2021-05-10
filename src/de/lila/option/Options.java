@@ -1,12 +1,14 @@
 package de.lila.option;
 
 import de.lila.ai.SearchExecutor;
+import de.lila.ai.TranspositionTable;
 
 public class Options {
 	
-	private static final UCIOption[] OPTIONS = new UCIOption[1];
+	private static final UCIOption[] OPTIONS = new UCIOption[2];
 	
-	public static final UCIOption THREADS = new UCIOption("Threads", new SpinField(1, 1, 512, (n) -> SearchExecutor.changeThreadAmount(n)));
+	public static final UCIOption THREADS = new UCIOption("Threads", new SpinField(1, 1, 1, (n) -> SearchExecutor.changeThreadAmount(n))); // max = 512
+	public static final UCIOption HASH_SIZE = new UCIOption("Hash", new SpinField(64, 1, 1024000, (size) -> TranspositionTable.changeSize(size)));
 	
 	private static int pointer;
 	

@@ -315,6 +315,10 @@ public class Evaluator {
 		
 		score += evalTacticalPieces(b, Piece.WHITE, false) - evalTacticalPieces(b, Piece.BLACK, false);
 		
+		score += evalKingPosition(b, Piece.WHITE, false) - evalKingPosition(b, Piece.BLACK, false);
+		
+		score += evalThreats(b, Piece.WHITE, false) - evalThreats(b, Piece.BLACK, false);
+		
 		score += evalSpace(b, Piece.WHITE) - evalSpace(b, Piece.BLACK);
 		
 		return score;
@@ -334,6 +338,10 @@ public class Evaluator {
 		score += evalPassedPawns(b, Piece.WHITE, true) - evalPassedPawns(b, Piece.BLACK, true);
 		
 		score += evalTacticalPieces(b, Piece.WHITE, true) - evalTacticalPieces(b, Piece.BLACK, true);
+		
+		score += evalKingPosition(b, Piece.WHITE, true) - evalKingPosition(b, Piece.BLACK, true);
+		
+		score += evalThreats(b, Piece.WHITE, true) - evalThreats(b, Piece.BLACK, true);
 		
 		return score;
 	}
@@ -393,7 +401,7 @@ public class Evaluator {
 		int l = b.getPieceAmount(p);
 		
 		for(int i=0; i<l; i++) {
-			int square = b.getPieceIndex(p, i);
+			int square = b.getPieceSquare(p, i);
 			
 			if(flip) square = MIRROR_TABLE[square];
 			
@@ -489,7 +497,7 @@ public class Evaluator {
 	private static long getKingBlockers(Board b, int side) {
 		int opponentSide = Piece.flipSide(side);
 		
-		int kingSquare = b.getPieceIndex(Piece.getPiece(side, Piece.KING), 0);
+		int kingSquare = b.getPieceSquare(Piece.getPiece(side, Piece.KING), 0);
 		
 		long opponentBishopSliders = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(Piece.BISHOP).orReturn(b.getBitBoard(Piece.QUEEN)));
 		long opponentRookSliders = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(Piece.ROOK).orReturn(b.getBitBoard(Piece.QUEEN)));
@@ -544,7 +552,7 @@ public class Evaluator {
 		int score = 0;
 		
 		for(int i=0; i<l; i++) {
-			int square = b.getPieceIndex(p, i);
+			int square = b.getPieceSquare(p, i);
 			
 			int n = countMobility(b, side, type, square, mobilityArea);
 			
@@ -657,7 +665,7 @@ public class Evaluator {
 		score -= BitOperations.countBits(doubledPawns) * (endgame ? 56 : 11);
 		
 		for(int i=0; i<b.getPieceAmount(friendlyPawn); i++) {
-			int square = b.getPieceIndex(friendlyPawn, i);
+			int square = b.getPieceSquare(friendlyPawn, i);
 			
 			long file = BitBoard.getFile(square);
 			
@@ -755,6 +763,35 @@ public class Evaluator {
 		
 		
 		return score;
+	}
+	
+	private static int evalKingPosition(Board b, int side, boolean endgame) {
+		int opponentSide = Piece.flipSide(side);
+		
+		int score = isOnPawnlessFlank(b, b.getPieceSquare(Piece.getPiece(opponentSide, Piece.KING), 0)) ? (endgame ? 95 : 17) : 0;
+		
+		
+		
+		return score;
+	}
+	
+	private static boolean isOnPawnlessFlank(Board b, int x) {
+		long pawns = b.getBitBoard(Piece.PAWN).getValue();
+		
+		if(x % 7 != 0) {
+			x = (x - 1) / 2 * 2 + 1;
+		}
+		
+		int fromX = x == 7 ? 5 : Math.max(x - 1, 0);
+		int toX = Math.min(x + 2, 7);
+		
+		long mask = BitBoard.getFiles(fromX, toX);
+		
+		return (pawns & mask) == 0;
+	}
+	
+	private static int evalThreats(Board b, int side, boolean endgame) {
+		return 0;
 	}
 	
 }

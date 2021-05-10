@@ -4,6 +4,8 @@ import de.lila.game.Move;
 
 public class TranspositionEntry {
 	
+	public static final int MEMORY_SIZE = 8 + 4 * 4 + Move.MEMORY_SIZE;
+	
 	public static final int TYPE_EXACT = 0;
 	public static final int TYPE_LOWER_BOUND = 1;
 	public static final int TYPE_UPPER_BOUND = 2;

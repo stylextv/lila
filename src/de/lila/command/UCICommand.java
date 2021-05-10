@@ -5,7 +5,7 @@ import java.util.HashMap;
 public abstract class UCICommand {
 	
 	private static final UCICommand[] COMMANDS = new UCICommand[] {
-			new CheckCommand(),
+			new InfoCommand(),
 			new ReadyCommand(),
 			new SetOptionCommand(),
 			new NewGameCommand(),

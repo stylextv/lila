@@ -12,22 +12,6 @@ public class MoveList {
 		moves = new Move[BoardConstants.MAX_POSSIBLE_MOVES];
 	}
 	
-	public Move[] getMoves() {
-		return moves;
-	}
-	
-	public int getCount() {
-		return count;
-	}
-	
-	public void setMoves(Move[] moves) {
-		this.moves = moves;
-	}
-	
-	public void setCount(int count) {
-		this.count = count;
-	}
-	
 	public void addMove(int from, int to, int captured, int promoted, int flag) {
 		addMove(new Move(from, to, captured, promoted, flag));
 	}
@@ -50,7 +34,7 @@ public class MoveList {
 	}
 	
 	public void applyMoveScore(Move move, int score) {
-		int hash = move.getHash();
+		short hash = move.getHash();
 		
 		for(int i=0; i<count; i++) {
 			Move m = moves[i];
@@ -91,6 +75,22 @@ public class MoveList {
 		best.setPicked(true);
 		
 		return best;
+	}
+	
+	public Move[] getMoves() {
+		return moves;
+	}
+	
+	public void setMoves(Move[] moves) {
+		this.moves = moves;
+	}
+	
+	public int getCount() {
+		return count;
+	}
+	
+	public void setCount(int count) {
+		this.count = count;
 	}
 	
 }

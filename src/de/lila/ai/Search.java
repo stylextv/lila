@@ -5,6 +5,7 @@ import de.lila.game.BoardConstants;
 import de.lila.game.Move;
 import de.lila.game.MoveGenerator;
 import de.lila.game.MoveList;
+import de.lila.game.Piece;
 import de.lila.game.Winner;
 
 public class Search {
@@ -13,7 +14,9 @@ public class Search {
 	
 	private static final int MATE_SCORE = 100000;
 	
-	private static final int WINDOW_SIZE = Evaluator.GENERIC_PAWN_VALUE;
+	private static final int MAX_DEPTH_QS_CHECKS = 0;
+	
+	private static final int WINDOW_SIZE = (int) (Evaluator.GENERIC_PAWN_VALUE * 1.5f);
 	
 	private static final int NULL_MOVE_REDUCTION = 2;
 	
@@ -47,6 +50,8 @@ public class Search {
 		int currentDepth = 1;
 		
 		while((minSearchDepth == 0 || currentDepth <= minSearchDepth) && !abortSearch) {
+			PVList pv = new PVList();
+			
 			int currentScore = startSearch(b, currentDepth, score);
 			
 			if(!abortSearch) score = currentScore;
@@ -57,7 +62,15 @@ public class Search {
 			
 			int nps = (int) (visitedNodes / (ms / 1000f));
 			
-			System.out.println("info depth " + currentDepth + " seldepth " + maxDepth + " score " + scoreString + " nodes " + visitedNodes + " nps " + nps + " time " + ms);
+			String pvString = "";
+			
+			for(Move m : pv.getMoves()) {
+				if(m == null) break;
+				
+				pvString = pvString + " " + m.getAlgebraicNotation();
+			}
+			
+			System.out.println("info depth " + currentDepth + " seldepth " + maxDepth + " score " + scoreString + " nodes " + visitedNodes + " nps " + nps + " time " + ms + " pv" + pvString);
 			
 			currentDepth++;
 		}
@@ -133,7 +146,7 @@ public class Search {
 		if(!abortSearch) {
 			TranspositionTable.putEntry(b.getPositionKey(), depth, 0, bestMove, type, alpha, b.getHistoryPly());
 			
-			responseMove = bestMove;
+			if(bestMove != null) responseMove = bestMove;
 		}
 		
 		return alpha;
@@ -141,7 +154,7 @@ public class Search {
 	
 	private static int alphaBeta(Board b, int plyFromRoot, int alpha, int beta, int depth, boolean allowNullMove) {
 		if(depth <= 0) {
-			return quiesce(b, plyFromRoot, alpha, beta);
+			return quiesce(b, plyFromRoot, alpha, beta, 0);
 		}
 		
 		if(!abortSearch && allocatedTime != 0 && System.currentTimeMillis() - startingTime >= allocatedTime) {
@@ -301,7 +314,7 @@ public class Search {
 		return alpha;
 	}
 	
-	private static int quiesce(Board b, int plyFromRoot, int alpha, int beta) {
+	private static int quiesce(Board b, int plyFromRoot, int alpha, int beta, int depth) {
 		if(plyFromRoot + 1 > maxDepth) {
 			maxDepth = plyFromRoot + 1;
 		}
@@ -341,10 +354,10 @@ public class Search {
 			if(!b.isOpponentInCheck()) {
 				hasLegalMove = true;
 				
-				if(inCheck || m.getCaptured() != 0 || m.getPromoted() != 0) {
+				if(m.getCaptured() != 0 || m.getPromoted() == Piece.QUEEN || ((m.getPromoted() == Piece.KNIGHT || depth >= MAX_DEPTH_QS_CHECKS) && b.isSideInCheck())) {
 					hasDoneMove = true;
 					
-					score = -quiesce(b, plyFromRoot + 1, -beta, -alpha);
+					score = -quiesce(b, plyFromRoot + 1, -beta, -alpha, depth - 1);
 					
 					if(score > alpha) {
 						alpha = score;
@@ -381,7 +394,7 @@ public class Search {
 	}
 	
 	private static void applyKillerMoves(MoveList list, int ply) {
-		for(int i=0; i<KillerTable.SIZE; i++) {
+		for(int i = 0; i < KillerTable.SIZE; i++) {
 			Move killer = KillerTable.getMove(ply, i);
 			
 			if(killer != null) list.applyMoveScore(killer, MoveEvaluator.KILLER_MOVE_SCORE);

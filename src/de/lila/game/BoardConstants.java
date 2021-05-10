@@ -10,4 +10,16 @@ public class BoardConstants {
 	
 	public static final int MAX_POSSIBLE_MOVES = 256;
 	
+	public static final int[] KING_START_POSITION = new int[] {
+			60, 4
+	};
+	
+	public static final int[] LEFT_ROOK_START_POSITION = new int[] {
+			56, 0
+	};
+	
+	public static final int[] RIGHT_ROOK_START_POSITION = new int[] {
+			63, 7
+	};
+	
 }

@@ -12,7 +12,7 @@ public class KillerTable {
 	public static void storeMove(Move move, int ply) {
 		if(move.isTactical()) return;
 		
-		int hash = move.getHash();
+		short hash = move.getHash();
 		
 		Move[] moves = TABLE[ply];
 		

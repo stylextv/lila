@@ -6,9 +6,9 @@ import de.lila.main.Constants;
 import de.lila.option.Options;
 import de.lila.option.UCIOption;
 
-public class CheckCommand extends UCICommand {
+public class InfoCommand extends UCICommand {
 	
-	public CheckCommand() {
+	public InfoCommand() {
 		super("uci");
 	}
 	

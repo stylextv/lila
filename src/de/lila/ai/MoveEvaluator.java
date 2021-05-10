@@ -62,8 +62,8 @@ public class MoveEvaluator {
 				
 				if(m.getCaptured() != 0) score += MVV_LVA[m.getCaptured()][pieceType];
 				if(m.getPromoted() != 0) score += VICTIM_SCORES[m.getPromoted()] + 1000;
-			} else {
 				
+			} else {
 				score = HistoryHeuristic.getScore(b.getSide(), pieceType, m.getTo());
 			}
 			

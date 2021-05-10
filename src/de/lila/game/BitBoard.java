@@ -93,6 +93,30 @@ public class BitBoard {
 		return BitOperations.shift(FILE_A, BitOperations.SHIFT_RIGHT * x);
 	}
 	
+	public static long getRanks(int fromY, int toY) {
+		long l = BitOperations.shift(RANK_8, BitOperations.SHIFT_DOWN * fromY);
+		
+		int n = toY - fromY;
+		
+		for(int i = 0; i < n; i++) {
+			l |= BitOperations.shift(l, BitOperations.SHIFT_DOWN);
+		}
+		
+		return l;
+	}
+	
+	public static long getFiles(int fromX, int toX) {
+		long l = BitOperations.shift(FILE_A, BitOperations.SHIFT_RIGHT * fromX);
+		
+		int n = toX - fromX;
+		
+		for(int i = 0; i < n; i++) {
+			l |= BitOperations.shift(l, BitOperations.SHIFT_RIGHT);
+		}
+		
+		return l;
+	}
+	
 	public static long getAdjacentFiles(int square) {
 		long l = NO_SQUARES;
 		
