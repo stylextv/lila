@@ -117,11 +117,8 @@ public class MoveGenerator {
 			
 			list.addMove(from, to, captured, Piece.QUEEN, flag);
 			list.addMove(from, to, captured, Piece.KNIGHT, flag);
-			
-			if(filter == MoveFilter.ALL_MOVES) {
-				list.addMove(from, to, captured, Piece.ROOK, flag);
-				list.addMove(from, to, captured, Piece.BISHOP, flag);
-			}
+			list.addMove(from, to, captured, Piece.ROOK, flag);
+			list.addMove(from, to, captured, Piece.BISHOP, flag);
 			
 		} else if(filter == MoveFilter.ALL_MOVES || captured != 0) {
 			

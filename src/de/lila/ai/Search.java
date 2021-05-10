@@ -15,9 +15,7 @@ public class Search {
 	
 	private static final int MATE_SCORE = 100000;
 	
-	private static final int MAX_DEPTH_QS_CHECKS = 0;
-	
-	private static final int WINDOW_SIZE = (int) (Evaluator.GENERIC_PAWN_VALUE * 1.5f);
+	private static final int WINDOW_SIZE = Evaluator.GENERIC_PAWN_VALUE;
 	
 	private static final int NULL_MOVE_REDUCTION = 2;
 	
@@ -155,7 +153,7 @@ public class Search {
 	
 	private static int alphaBeta(Board b, int plyFromRoot, int alpha, int beta, int depth, boolean allowNullMove) {
 		if(depth <= 0) {
-			return quiesce(b, plyFromRoot, alpha, beta, depth);
+			return qSearch(b, plyFromRoot, alpha, beta, depth);
 		}
 		
 		if(!abortSearch && allocatedTime != 0 && System.currentTimeMillis() - startingTime >= allocatedTime) {
@@ -315,7 +313,7 @@ public class Search {
 		return alpha;
 	}
 	
-	private static int quiesce(Board b, int plyFromRoot, int alpha, int beta, int depth) {
+	private static int qSearch(Board b, int plyFromRoot, int alpha, int beta, int depth) {
 		if(plyFromRoot + 1 > maxDepth) {
 			maxDepth = plyFromRoot + 1;
 		}
@@ -334,11 +332,9 @@ public class Search {
 			if(evalScore > alpha) alpha = evalScore;
 		}
 		
-		boolean searchAllChecks = depth >= MAX_DEPTH_QS_CHECKS;
-		
 		MoveList list = new MoveList();
 		
-		MoveGenerator.generateAllMoves(b, searchAllChecks ? MoveFilter.ALL_MOVES : MoveFilter.QUIESCENCE_MOVES, list);
+		MoveGenerator.generateAllMoves(b, inCheck ? MoveFilter.ALL_MOVES : MoveFilter.QUIESCENCE_MOVES, list);
 		
 		MoveEvaluator.eval(list, b);
 		
@@ -351,34 +347,19 @@ public class Search {
 			
 			b.makeMove(m);
 			
-			int score = 0;
-			boolean hasDoneMove = false;
-			
 			if(!b.isOpponentInCheck()) {
 				hasLegalMove = true;
 				
-				boolean allowMove;
+				int score = -qSearch(b, plyFromRoot + 1, -beta, -alpha, depth - 1);
 				
-				if(searchAllChecks) {
-					allowMove = m.getCaptured() != 0 || m.getPromoted() == Piece.QUEEN || ((m.getPromoted() == Piece.KNIGHT || depth >= MAX_DEPTH_QS_CHECKS) && b.isSideInCheck());
-				} else {
-					allowMove = m.getPromoted() != Piece.KNIGHT || b.isSideInCheck();
-				}
-				
-				if(allowMove) {
-					hasDoneMove = true;
-					
-					score = -quiesce(b, plyFromRoot + 1, -beta, -alpha, depth - 1);
-					
-					if(score > alpha) {
-						alpha = score;
-					}
+				if(score > alpha) {
+					alpha = score;
 				}
 			}
 			
 			b.undoMove(m);
 			
-			if(hasDoneMove && score >= beta) {
+			if(alpha >= beta) {
 				if(!abortSearch) KillerTable.storeMove(m, b.getHistoryPly());
 				
 				return beta;
