@@ -1,7 +1,7 @@
 package de.lila.option;
 
-import de.lila.ai.SearchExecutor;
-import de.lila.ai.TranspositionTable;
+import de.lila.search.SearchExecutor;
+import de.lila.search.TranspositionTable;
 
 public class Options {
 	

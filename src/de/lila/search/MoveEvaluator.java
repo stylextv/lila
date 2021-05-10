@@ -1,4 +1,4 @@
-package de.lila.ai;
+package de.lila.search;
 
 import de.lila.game.BitBoard;
 import de.lila.game.Board;

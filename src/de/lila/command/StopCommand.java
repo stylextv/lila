@@ -2,7 +2,7 @@ package de.lila.command;
 
 import java.util.HashMap;
 
-import de.lila.ai.SearchExecutor;
+import de.lila.search.SearchExecutor;
 
 public class StopCommand extends UCICommand {
 	

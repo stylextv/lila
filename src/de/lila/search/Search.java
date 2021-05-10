@@ -1,4 +1,4 @@
-package de.lila.ai;
+package de.lila.search;
 
 import de.lila.game.Board;
 import de.lila.game.BoardConstants;
@@ -6,7 +6,6 @@ import de.lila.game.Move;
 import de.lila.game.MoveFilter;
 import de.lila.game.MoveGenerator;
 import de.lila.game.MoveList;
-import de.lila.game.Piece;
 import de.lila.game.Winner;
 
 public class Search {

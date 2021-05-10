@@ -3,7 +3,7 @@ package de.lila.main;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import de.lila.ai.SearchExecutor;
+import de.lila.search.SearchExecutor;
 import de.lila.command.UCIController;
 import de.lila.game.LookupTable;
 import de.lila.game.PositionKey;

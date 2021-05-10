@@ -1,4 +1,4 @@
-package de.lila.ai;
+package de.lila.search;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;

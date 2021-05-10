@@ -2,7 +2,7 @@ package de.lila.command;
 
 import java.util.HashMap;
 
-import de.lila.ai.SearchExecutor;
+import de.lila.search.SearchExecutor;
 import de.lila.game.Board;
 import de.lila.game.Piece;
 import de.lila.main.Main;
