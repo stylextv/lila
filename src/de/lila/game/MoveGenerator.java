@@ -3,10 +3,14 @@ package de.lila.game;
 public class MoveGenerator {
 	
 	public static void generateAllMoves(Board b, MoveList list) {
-		generateAllMoves(b, b.getSide(), list);
+		generateAllMoves(b, MoveFilter.ALL_MOVES, list);
 	}
 	
-	public static void generateAllMoves(Board b, int side, MoveList list) {
+	public static void generateAllMoves(Board b, int filter, MoveList list) {
+		generateAllMoves(b, b.getSide(), filter, list);
+	}
+	
+	public static void generateAllMoves(Board b, int side, int filter, MoveList list) {
 		int facing = 1;
 		int opponentSide = Piece.flipSide(side);
 		
@@ -16,15 +20,15 @@ public class MoveGenerator {
 		long occupiedSquares = b.getBitBoard(side).orReturn(b.getBitBoard(opponentSide));
 		long emptySquares = BitOperations.inverse(occupiedSquares);
 		
-		addPawnMoves(b, list, side, opponentSide, facing, emptySquares);
-		addKnightMoves(b, list, side, possibleSquares);
-		addKingMoves(b, list, side, possibleSquares, emptySquares);
+		addPawnMoves(b, list, side, filter, opponentSide, facing, emptySquares);
+		addKnightMoves(b, list, side, filter, possibleSquares);
+		addKingMoves(b, list, side, filter, possibleSquares, emptySquares);
 		
-		addSliderMoves(b, list, side, possibleSquares, occupiedSquares, Piece.BISHOP);
-		addSliderMoves(b, list, side, possibleSquares, occupiedSquares, Piece.ROOK);
+		addSliderMoves(b, list, side, filter, possibleSquares, occupiedSquares, Piece.BISHOP);
+		addSliderMoves(b, list, side, filter, possibleSquares, occupiedSquares, Piece.ROOK);
 	}
 	
-	private static void addPawnMoves(Board b, MoveList list, int side, int opponentSide, int facing, long emptySquares) {
+	private static void addPawnMoves(Board b, MoveList list, int side, int filter, int opponentSide, int facing, long emptySquares) {
 		long pawnSquares = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.PAWN));
 		
 		long pawnMoves = pawnSquares;
@@ -38,25 +42,28 @@ public class MoveGenerator {
 		while(possiblePawnMovesAdd != 0) {
 			int square = BitOperations.bitScanForward(possiblePawnMovesAdd);
 			
-			addPawnMove(list, side, square - BitOperations.SHIFT_DOWN * facing, square, 0, MoveFlag.NONE);
+			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing, square, 0, MoveFlag.NONE);
 			
 			possiblePawnMovesAdd ^= BitBoard.SINGLE_SQUARE[square];
 		}
 		
-		long possiblePawnDoubleMoves = possiblePawnMoves;
-		if(side == Piece.WHITE) possiblePawnDoubleMoves &= BitBoard.RANK_3;
-		else possiblePawnDoubleMoves &= BitBoard.RANK_6;
-		
-		possiblePawnDoubleMoves = BitOperations.shift(possiblePawnDoubleMoves, facing * BitOperations.SHIFT_DOWN);
-		
-		possiblePawnDoubleMoves = possiblePawnDoubleMoves & emptySquares;
-		
-		while(possiblePawnDoubleMoves != 0) {
-			int square = BitOperations.bitScanForward(possiblePawnDoubleMoves);
+		if(filter == MoveFilter.ALL_MOVES) {
 			
-			list.addMove(square - BitOperations.SHIFT_DOWN * 2 * facing, square, 0, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
+			long possiblePawnDoubleMoves = possiblePawnMoves;
+			if(side == Piece.WHITE) possiblePawnDoubleMoves &= BitBoard.RANK_3;
+			else possiblePawnDoubleMoves &= BitBoard.RANK_6;
 			
-			possiblePawnDoubleMoves ^= BitBoard.SINGLE_SQUARE[square];
+			possiblePawnDoubleMoves = BitOperations.shift(possiblePawnDoubleMoves, facing * BitOperations.SHIFT_DOWN);
+			
+			possiblePawnDoubleMoves = possiblePawnDoubleMoves & emptySquares;
+			
+			while(possiblePawnDoubleMoves != 0) {
+				int square = BitOperations.bitScanForward(possiblePawnDoubleMoves);
+				
+				list.addMove(square - BitOperations.SHIFT_DOWN * 2 * facing, square, 0, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
+				
+				possiblePawnDoubleMoves ^= BitBoard.SINGLE_SQUARE[square];
+			}
 		}
 		
 		long opponentSquares = b.getBitBoard(opponentSide).getValue();
@@ -75,6 +82,7 @@ public class MoveGenerator {
 			if((pawnAttacksLeft & moveTo) != 0) {
 				list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
 			}
+			
 			if((pawnAttacksRight & moveTo) != 0) {
 				list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing - 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
 			}
@@ -86,7 +94,7 @@ public class MoveGenerator {
 		while(pawnAttacksLeft != 0) {
 			int square = BitOperations.bitScanForward(pawnAttacksLeft);
 			
-			addPawnMove(list, side, square - BitOperations.SHIFT_DOWN * facing + 1, square, b.getPieceType(square), MoveFlag.NONE);
+			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing + 1, square, b.getPieceType(square), MoveFlag.NONE);
 			
 			pawnAttacksLeft ^= BitBoard.SINGLE_SQUARE[square];
 		}
@@ -94,13 +102,13 @@ public class MoveGenerator {
 		while(pawnAttacksRight != 0) {
 			int square = BitOperations.bitScanForward(pawnAttacksRight);
 			
-			addPawnMove(list, side, square - BitOperations.SHIFT_DOWN * facing - 1, square, b.getPieceType(square), MoveFlag.NONE);
+			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing - 1, square, b.getPieceType(square), MoveFlag.NONE);
 			
 			pawnAttacksRight ^= BitBoard.SINGLE_SQUARE[square];
 		}
 	}
 	
-	private static void addPawnMove(MoveList list, int side, int from, int to, int captured, int flag) {
+	private static void addPawnMove(MoveList list, int side, int filter, int from, int to, int captured, int flag) {
 		int toY = to / 8;
 		
 		boolean promoted = toY % 7 == 0;
@@ -109,16 +117,19 @@ public class MoveGenerator {
 			
 			list.addMove(from, to, captured, Piece.QUEEN, flag);
 			list.addMove(from, to, captured, Piece.KNIGHT, flag);
-			list.addMove(from, to, captured, Piece.ROOK, flag);
-			list.addMove(from, to, captured, Piece.BISHOP, flag);
 			
-		} else {
+			if(filter == MoveFilter.ALL_MOVES) {
+				list.addMove(from, to, captured, Piece.ROOK, flag);
+				list.addMove(from, to, captured, Piece.BISHOP, flag);
+			}
+			
+		} else if(filter == MoveFilter.ALL_MOVES || captured != 0) {
 			
 			list.addMove(from, to, captured, 0, flag);
 		}
 	}
 	
-	private static void addKnightMoves(Board b, MoveList list, int side, long possibleSquares) {
+	private static void addKnightMoves(Board b, MoveList list, int side, int filter, long possibleSquares) {
 		long knightSquares = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.KNIGHT));
 		
 		while(knightSquares != 0) {
@@ -129,7 +140,11 @@ public class MoveGenerator {
 			while(moves != 0) {
 				int to = BitOperations.bitScanForward(moves);
 				
-				list.addMove(square, to, b.getPieceType(to), 0, MoveFlag.NONE);
+				int captured = b.getPieceType(to);
+				
+				if(filter == MoveFilter.ALL_MOVES || captured != 0) {
+					list.addMove(square, to, captured, 0, MoveFlag.NONE);
+				}
 				
 				moves ^= BitBoard.SINGLE_SQUARE[to];
 			}
@@ -138,7 +153,7 @@ public class MoveGenerator {
 		}
 	}
 	
-	private static void addKingMoves(Board b, MoveList list, int side, long possibleSquares, long emptySquares) {
+	private static void addKingMoves(Board b, MoveList list, int side, int filter, long possibleSquares, long emptySquares) {
 		long kingSquares = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.KING));
 		
 		int square = BitOperations.bitScanForward(kingSquares);
@@ -148,10 +163,16 @@ public class MoveGenerator {
 		while(moves != 0) {
 			int to = BitOperations.bitScanForward(moves);
 			
-			list.addMove(square, to, b.getPieceType(to), 0, MoveFlag.NONE);
+			int captured = b.getPieceType(to);
+			
+			if(filter == MoveFilter.ALL_MOVES || captured != 0) {
+				list.addMove(square, to, captured, 0, MoveFlag.NONE);
+			}
 			
 			moves ^= BitBoard.SINGLE_SQUARE[to];
 		}
+		
+		if(filter == MoveFilter.QUIESCENCE_MOVES) return;
 		
 		if(side == Piece.WHITE) {
 			
@@ -201,7 +222,7 @@ public class MoveGenerator {
 		list.addMove(from, to, 0, 0, flag);
 	}
 	
-	private static void addSliderMoves(Board b, MoveList list, int side, long possibleSquares, long occupiedSquares, int type) {
+	private static void addSliderMoves(Board b, MoveList list, int side, int filter, long possibleSquares, long occupiedSquares, int type) {
 		long squares = b.getBitBoard(side).andReturn(b.getBitBoard(type).orReturn(b.getBitBoard(Piece.QUEEN)));
 		
 		while(squares != 0) {
@@ -214,7 +235,11 @@ public class MoveGenerator {
 			while(moves != 0) {
 				int to = BitOperations.bitScanForward(moves);
 				
-				list.addMove(square, to, b.getPieceType(to), 0, MoveFlag.NONE);
+				int captured = b.getPieceType(to);
+				
+				if(filter == MoveFilter.ALL_MOVES || captured != 0) {
+					list.addMove(square, to, captured, 0, MoveFlag.NONE);
+				}
 				
 				moves ^= BitBoard.SINGLE_SQUARE[to];
 			}

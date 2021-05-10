@@ -3,6 +3,7 @@ package de.lila.ai;
 import de.lila.game.Board;
 import de.lila.game.BoardConstants;
 import de.lila.game.Move;
+import de.lila.game.MoveFilter;
 import de.lila.game.MoveGenerator;
 import de.lila.game.MoveList;
 import de.lila.game.Piece;
@@ -154,7 +155,7 @@ public class Search {
 	
 	private static int alphaBeta(Board b, int plyFromRoot, int alpha, int beta, int depth, boolean allowNullMove) {
 		if(depth <= 0) {
-			return quiesce(b, plyFromRoot, alpha, beta, 0);
+			return quiesce(b, plyFromRoot, alpha, beta, depth);
 		}
 		
 		if(!abortSearch && allocatedTime != 0 && System.currentTimeMillis() - startingTime >= allocatedTime) {
@@ -333,9 +334,11 @@ public class Search {
 			if(evalScore > alpha) alpha = evalScore;
 		}
 		
+		boolean searchAllChecks = depth >= MAX_DEPTH_QS_CHECKS;
+		
 		MoveList list = new MoveList();
 		
-		MoveGenerator.generateAllMoves(b, list);
+		MoveGenerator.generateAllMoves(b, searchAllChecks ? MoveFilter.ALL_MOVES : MoveFilter.QUIESCENCE_MOVES, list);
 		
 		MoveEvaluator.eval(list, b);
 		
@@ -354,7 +357,15 @@ public class Search {
 			if(!b.isOpponentInCheck()) {
 				hasLegalMove = true;
 				
-				if(m.getCaptured() != 0 || m.getPromoted() == Piece.QUEEN || ((m.getPromoted() == Piece.KNIGHT || depth >= MAX_DEPTH_QS_CHECKS) && b.isSideInCheck())) {
+				boolean allowMove;
+				
+				if(searchAllChecks) {
+					allowMove = m.getCaptured() != 0 || m.getPromoted() == Piece.QUEEN || ((m.getPromoted() == Piece.KNIGHT || depth >= MAX_DEPTH_QS_CHECKS) && b.isSideInCheck());
+				} else {
+					allowMove = m.getPromoted() != Piece.KNIGHT || b.isSideInCheck();
+				}
+				
+				if(allowMove) {
 					hasDoneMove = true;
 					
 					score = -quiesce(b, plyFromRoot + 1, -beta, -alpha, depth - 1);
