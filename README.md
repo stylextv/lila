@@ -36,10 +36,19 @@ You can either run it from the command prompt via `java -jar lila.jar` or use a 
 Coming soon...
 
 ## Options
-Coming soon...
+The [Universal Chess Interface (UCI)](http://wbec-ridderkerk.nl/html/UCIProtocol.html) is a standard protocol used to communicate between chess programs, and is the recommended way to do so for typical graphical user interfaces (GUI) or chess tools.
+
+The following UCI options, which can typically be set via a GUI, are available in Lila:
+
+  * #### Threads
+    The number of CPU threads used for searching a position. For best performance, set
+    this equal to the number of CPU cores available.
+
+  * #### Hash
+    The size of the hash table in MB.
 
 ## Commands
-Lila supports most of the regular commands included in the UCI protocol, but also has some special commands.
+Lila supports most of the regular commands included in the [UCI protocol](http://wbec-ridderkerk.nl/html/UCIProtocol.html), but also has some special commands.
 
 Name | Arguments | Description
 --- | --- | ---
