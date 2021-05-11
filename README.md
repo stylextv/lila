@@ -45,10 +45,10 @@ isready | - | Used to synchronize the chess engine with the GUI.
 setoption | name [value] | Sets an option to a specific value. For buttons, simply omit the *value* argument.
 ucinewgame | - | Tells the engine that a new game has started.
 position | [fen &#124; startpos] moves | Sets up a new position.
-go | depth  movetime  wtime  btime  movestogo  winc  binc | Starts a new search with the specified constraints.
+go | depth<br/>movetime<br/>wtime<br/>btime<br/>movestogo<br/>winc<br/>binc | Starts a new search with the specified constraints.
 stop | - | Ends the current search as soon as possible.
 d | - | Prints the current board (used for debugging).
-perft | [depth] | Executes a [perft](https://www.chessprogramming.org/Perft) call to the specified depth.  ⚠️ Warning: Starting an unrestricted call locks the program at the moment.
+perft | [depth] | Executes a [perft](https://www.chessprogramming.org/Perft) call to the specified depth.<br/>⚠️ Warning: Starting an unrestricted call locks the program at the moment.
 quit | - | Stops the program and eliminates all searches that are still running.
 
 ## Strength
