@@ -43,7 +43,7 @@ The following table shows the wins, losses, draws and the Elo gain compared to t
 
 Version | Wins | Losses | Draws | Elo gain | Production ready
 --- | --- | --- | --- | --- | ---
-3.0.1 | 68 | 4 | 28 | +58 | ❌
+3.0.1 | 92 | 0 | 8 | +234 | ❌
 
 ## Project Layout
 Here you can see the current structure of the project.
