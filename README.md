@@ -39,7 +39,11 @@ Coming soon...
 Coming soon...
 
 ## Strength
-Coming soon...
+The following table shows the wins, losses, draws and the Elo gain compared to the respective previous version.
+
+Version | Wins | Losses | Draws | Elo gain | Production ready
+--- | --- | ---
+3.0.1 | 68 | 4 | 28 | +58 | ❌
 
 ## Project Layout
 Here you can see the current structure of the project.
