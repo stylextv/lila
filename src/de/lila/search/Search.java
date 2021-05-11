@@ -333,13 +333,13 @@ public class Search {
 		
 		MoveList list = new MoveList();
 		
-		MoveGenerator.generateAllMoves(b, inCheck ? MoveFilter.ALL_MOVES : MoveFilter.QUIESCENCE_MOVES, list);
+		MoveGenerator.generateAllMoves(b, inCheck ? MoveFilter.ALL_MOVES : MoveFilter.TACTICAL_MOVES, list);
 		
 		MoveEvaluator.eval(list, b);
 		
 		applyKillerMoves(list, b.getHistoryPly());
 		
-		boolean hasLegalMove = false;
+		boolean hasDoneMove = false;
 		
 		while(list.hasMovesLeft()) {
 			Move m = list.next();
@@ -347,7 +347,7 @@ public class Search {
 			b.makeMove(m);
 			
 			if(!b.isOpponentInCheck()) {
-				hasLegalMove = true;
+				hasDoneMove = true;
 				
 				int score = -qSearch(b, plyFromRoot + 1, -beta, -alpha, depth - 1);
 				
@@ -365,20 +365,46 @@ public class Search {
 			}
 		}
 		
-		if(!hasLegalMove) {
-			int winner = b.findWinner(false);
+		if(!hasDoneMove) {
+			boolean hasLegalMove = false;
 			
-			int score;
-			
-			if(winner == Winner.DRAW) {
-				score = 0;
-			} else {
-				int i = MATE_SCORE - plyFromRoot;
+			if(!inCheck) {
+				list = new MoveList();
 				
-				score = b.getSide() == winner ? i : -i;
+				MoveGenerator.generateAllMoves(b, list);
+				
+				MoveEvaluator.eval(list, b);
+				
+				while(list.hasMovesLeft()) {
+					Move m = list.next();
+					
+					b.makeMove(m);
+					
+					if(!b.isOpponentInCheck()) {
+						hasLegalMove = true;
+					}
+					
+					b.undoMove(m);
+					
+					if(hasLegalMove) break;
+				}
 			}
 			
-			return score;
+			if(!hasLegalMove) {
+				int winner = b.findWinner(false, inCheck);
+				
+				int score;
+				
+				if(winner == Winner.DRAW) {
+					score = 0;
+				} else {
+					int i = MATE_SCORE - plyFromRoot;
+					
+					score = b.getSide() == winner ? i : -i;
+				}
+				
+				return score;
+			}
 		}
 		
 		return alpha;

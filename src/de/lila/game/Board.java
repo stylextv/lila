@@ -746,18 +746,6 @@ public class Board {
 		}
 	}
 	
-	public boolean isLegalMove(Move m) {
-		boolean legal = true;
-		
-		makeMove(m);
-		
-		if(isOpponentInCheck()) legal = false;
-		
-		undoMove(m);
-		
-		return legal;
-	}
-	
 	public boolean hasThreefoldRepetition() {
 		int start = historyPly - 2;
 		
@@ -778,39 +766,22 @@ public class Board {
 		return false;
 	}
 	
-	public int findWinner() {
-		MoveList list = new MoveList();
-		
-		MoveGenerator.generateAllMoves(this, list);
-		
-		boolean hasLegalMoves = false;
-		
-		for(int i=0; i<list.getCount(); i++) {
-			Move m = list.getMove(i);
-			
-			if(isLegalMove(m)) {
-				hasLegalMoves = true;
-				
-				break;
-			}
-		}
-		
-		return findWinner(hasLegalMoves);
+	public int findWinner(boolean hasLegalMoves) {
+		return findWinner(hasLegalMoves, isSideInCheck());
 	}
 	
-	public int findWinner(boolean hasLegalMoves) {
+	public int findWinner(boolean hasLegalMoves, boolean inCheck) {
 		if(hasLegalMoves) {
 			if(fiftyMoveCounter == 100 || hasThreefoldRepetition()) return Winner.DRAW;
 			
 			return Winner.NONE;
 		}
 		
-		if(!isSideInCheck()) {
+		if(!inCheck) {
 			return Winner.DRAW;
 		}
 		
-		if(side == Piece.WHITE) return Winner.BLACK;
-		return Winner.WHITE;
+		return Piece.flipSide(side);
 	}
 	
 	public int getSide() {

@@ -36,7 +36,7 @@ public class TranspositionTable {
 	}
 	
 	private static boolean shouldReplace(int depth, int type, int age, TranspositionEntry old) {
-		return type == TranspositionEntry.TYPE_EXACT || age > old.getAge() || (old.getType() != TranspositionEntry.TYPE_EXACT && depth > old.getDepth());
+		return type == TranspositionEntry.TYPE_EXACT || age > old.getAge() || depth > old.getDepth();
 	}
 	
 }

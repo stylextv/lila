@@ -74,17 +74,19 @@ public class MoveGenerator {
 		pawnAttacksLeft &= BitOperations.inverse(BitBoard.FILE_H);
 		pawnAttacksRight &= BitOperations.inverse(BitBoard.FILE_A);
 		
-		int enPassant = b.getEnPassant();
-		
-		if(enPassant != BoardSquare.NONE) {
-			long moveTo = BitBoard.SINGLE_SQUARE[enPassant];
+		if(filter == MoveFilter.ALL_MOVES) {
+			int enPassant = b.getEnPassant();
 			
-			if((pawnAttacksLeft & moveTo) != 0) {
-				list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
-			}
-			
-			if((pawnAttacksRight & moveTo) != 0) {
-				list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing - 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
+			if(enPassant != BoardSquare.NONE) {
+				long moveTo = BitBoard.SINGLE_SQUARE[enPassant];
+				
+				if((pawnAttacksLeft & moveTo) != 0) {
+					list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
+				}
+				
+				if((pawnAttacksRight & moveTo) != 0) {
+					list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing - 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
+				}
 			}
 		}
 		
@@ -169,7 +171,7 @@ public class MoveGenerator {
 			moves ^= BitBoard.SINGLE_SQUARE[to];
 		}
 		
-		if(filter == MoveFilter.QUIESCENCE_MOVES) return;
+		if(filter == MoveFilter.TACTICAL_MOVES) return;
 		
 		if(side == Piece.WHITE) {
 			
