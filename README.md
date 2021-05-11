@@ -41,6 +41,11 @@ Coming soon...
 ## Strength
 The following table shows the wins, losses, draws and the Elo gain compared to the respective previous version.
 
+Markdown | Less | Pretty
+--- | --- | ---
+*Still* | `renders` | **nicely**
+1 | 2 | 3
+
 Version | Wins | Losses | Draws | Elo gain | Production ready
 --- | --- | ---
 3.0.1 | 68 | 4 | 28 | +58 | ❌
