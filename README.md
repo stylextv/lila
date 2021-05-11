@@ -35,6 +35,9 @@ You can either run it from the command prompt via `java -jar lila.jar` or use a 
 ## Features
 Coming soon...
 
+## Options
+Coming soon...
+
 ## Commands
 Lila supports most of the regular commands included in the UCI protocol, but also has some special commands.
 
