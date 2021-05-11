@@ -38,6 +38,9 @@ Coming soon...
 ## Commands
 Coming soon...
 
+## Strength
+Coming soon...
+
 ## Project Layout
 Here you can see the current structure of the project.
 
