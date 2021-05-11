@@ -36,7 +36,20 @@ You can either run it from the command prompt via `java -jar lila.jar` or use a 
 Coming soon...
 
 ## Commands
-Coming soon...
+Lila supports most of the regular commands included in the UCI protocol, but also has some special commands.
+
+Name | Arguments | Description
+--- | --- | ---
+uci | - | The UCI startup command.
+isready | - | Used to synchronize the chess engine with the GUI.
+setoption | name [value] | Sets an option to a specific value. For buttons, simply omit the *value* argument.
+ucinewgame | - | Tells the engine that a new game has started.
+position | [fen | startpos] moves | Sets up a new position.
+go | depth<br/>movetime<br/>wtime<br/>btime<br/>movestogo<br/>winc<br/>binc | Starts a new search with the specified conditions.
+stop | - | Ends the current search as soon as possible.
+d | - | Displays the current board (used for debugging).
+perft | [depth] | Executes a [perft](https://www.chessprogramming.org/Perft) call to the specified depth.
+quit | - | Stops the program and eliminates all searches that are still running.
 
 ## Strength
 The following table shows the wins, losses, draws and the Elo gain compared to the respective previous version.
