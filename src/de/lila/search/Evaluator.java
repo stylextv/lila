@@ -3,6 +3,7 @@ package de.lila.search;
 import de.lila.game.BitBoard;
 import de.lila.game.BitOperations;
 import de.lila.game.Board;
+import de.lila.game.BoardConstants;
 import de.lila.game.LookupTable;
 import de.lila.game.Piece;
 
@@ -276,6 +277,14 @@ public class Evaluator {
 			-4, 4
 	};
 	
+	private static final int[] PASSED_RANK_BONUS_MG = new int[] {
+			0, 10, 17, 15, 62, 168, 276
+	};
+	
+	private static final int[] PASSED_RANK_BONUS_EG = new int[] {
+			0, 28, 33, 41, 72, 177, 260
+	};
+	
 	public static int eval(Board b, int side) {
 		int score = eval(b);
 		
@@ -311,8 +320,6 @@ public class Evaluator {
 		
 		score += evalPawnStructure(b, Piece.WHITE, false) - evalPawnStructure(b, Piece.BLACK, false);
 		
-		score += evalPassedPawns(b, Piece.WHITE, false) - evalPassedPawns(b, Piece.BLACK, false);
-		
 		score += evalTacticalPieces(b, Piece.WHITE, false) - evalTacticalPieces(b, Piece.BLACK, false);
 		
 		score += evalKingPosition(b, Piece.WHITE, false) - evalKingPosition(b, Piece.BLACK, false);
@@ -334,8 +341,6 @@ public class Evaluator {
 		score += evalMobility(b, Piece.WHITE, MOBILITY_BONUS_EG) - evalMobility(b, Piece.BLACK, MOBILITY_BONUS_EG);
 		
 		score += evalPawnStructure(b, Piece.WHITE, true) - evalPawnStructure(b, Piece.BLACK, true);
-		
-		score += evalPassedPawns(b, Piece.WHITE, true) - evalPassedPawns(b, Piece.BLACK, true);
 		
 		score += evalTacticalPieces(b, Piece.WHITE, true) - evalTacticalPieces(b, Piece.BLACK, true);
 		
@@ -667,11 +672,14 @@ public class Evaluator {
 		for(int i=0; i<b.getPieceAmount(friendlyPawn); i++) {
 			int square = b.getPieceSquare(friendlyPawn, i);
 			
-			long file = BitBoard.getFile(square);
+			long rankMask = BitBoard.getRank(square);
+			long fileMask = BitBoard.getFile(square);
 			
 			long adjacentFiles = BitBoard.getAdjacentFiles(square);
 			
 			long neighbours = friendlyPawns & adjacentFiles;
+			
+			long opponentNeighbours = opponentPawns & adjacentFiles;
 			
 			long supportedBy = neighbours & BitBoard.getRank(square - up);
 			
@@ -679,7 +687,7 @@ public class Evaluator {
 			
 			long upperRanks = BitBoard.getLowerRanks(square, up);
 			
-			boolean isOpposed = (opponentPawns & file & upperRanks) != 0;
+			boolean isOpposed = (opponentPawns & fileMask & upperRanks) != 0;
 			
 			boolean isConnected = isPhalanx || supportedBy != 0;
 			
@@ -695,9 +703,9 @@ public class Evaluator {
 			
 			boolean isWeak = isIsolated || isBackward;
 			
-			boolean isDoubled = (friendlyPawns & file & BitBoard.getLowerRanks(square, -up)) != 0;
+			boolean isDoubled = (friendlyPawns & fileMask & BitBoard.getLowerRanks(square, -up)) != 0;
 			
-			boolean isDoubledIsolated = isIsolated && isDoubled && isOpposed && (upperRanks & adjacentFiles & opponentPawns) == 0;
+			boolean isDoubledIsolated = isIsolated && isDoubled && isOpposed && (upperRanks & opponentNeighbours) == 0;
 			
 			if(isDoubledIsolated) score -= endgame ? 56 : 11;
 			else if(isIsolated) score -= endgame ? 15 : 5;
@@ -707,9 +715,9 @@ public class Evaluator {
 			
 			if(side == Piece.WHITE) rank = 9 - rank;
 			
+			int supporterCount = BitOperations.countBits(supportedBy);
+			
 			if(isConnected) {
-				
-				int supporterCount = BitOperations.countBits(supportedBy);
 				
 				int bonus = CONNECTED_PAWNS_BONUS[rank - 2] * (2 + (isPhalanx ? 1 : 0) - (isOpposed ? 1 : 0)) + 21 * supporterCount;
 				
@@ -724,10 +732,11 @@ public class Evaluator {
 				score -= endgame ? 27 : 13;
 			}
 			
-			if(endgame && supportedBy == 0) {
-				int attackerCount = BitOperations.countBits(opponentPawns & adjacentFiles & BitBoard.getRank(square + up));
-				
-				if(attackerCount == 2) score -= 56;
+			int attackerCount = BitOperations.countBits(opponentNeighbours & BitBoard.getRank(square + up));
+			int attackerPushCount = BitOperations.countBits(opponentNeighbours & BitBoard.getRank(square + up * 2));
+			
+			if(endgame && supportedBy == 0 && attackerCount == 2) {
+				score -= 56;
 			}
 			
 			if((rank == 5 || rank == 6) && blocked) {
@@ -735,16 +744,192 @@ public class Evaluator {
 				
 				score += endgame ? BLOCKED_PAWNS_PENALTY_EG[blockedAt] : BLOCKED_PAWNS_PENALTY_MG[blockedAt];
 			}
+			
+			// eval passed pawns
+			
+			int phalanxCount = BitOperations.countBits(neighbours & rankMask);
+			
+			if(isCandidatePasser(b, side, square, up, supporterCount, phalanxCount, attackerCount, attackerPushCount)) {
+				
+				boolean isLeverable = false;
+				
+				int x = square % 8;
+				int y = square / 8;
+				
+				if(b.getPiece(square + up) != opponentPawn) {
+					isLeverable = true;
+				} else {
+					for(int dir = BitOperations.SHIFT_LEFT; dir <= BitOperations.SHIFT_RIGHT; dir += BitOperations.SHIFT_RIGHT * 2) {
+						int x2 = x + dir;
+						
+						if(x2 >= 0 && x2 < 8) {
+							int square1 = square + dir;
+							int square2 = MIRROR_TABLE[square] + dir;
+							
+							if(b.getPiece(square1 - up) == friendlyPawn && Piece.getSideOfPiece(b.getPiece(square1)) != opponentSide) {
+								
+								if(isUnderXRayAttack(b, square1, side) || !isUnderXRayAttack(b, square2, opponentSide)) {
+									isLeverable = true;
+									
+									break;
+								}
+							}
+						}
+					}
+				}
+				
+				if(isLeverable) {
+					
+					rank--;
+					
+					if(endgame) {
+						int w = rank > 2 ? 5 * rank - 13 : 0;
+						
+						if(w != 0) {
+							int kingProximity = 0;
+							
+							int friendlyKingSquare = b.getPieceSquare(Piece.getPiece(side, Piece.KING), 0);
+							int opponentKingSquare = b.getPieceSquare(Piece.getPiece(opponentSide, Piece.KING), 0);
+							
+							int friendlyKingX = friendlyKingSquare % 8;
+							int friendlyKingY = friendlyKingSquare / 8;
+							
+							int opponentKingX = opponentKingSquare % 8;
+							int opponentKingY = opponentKingSquare / 8;
+							
+							int m = side == Piece.WHITE ? 1 : -1;
+							
+							kingProximity -= Math.min(Math.max(Math.abs(friendlyKingY - y + 1 * m), Math.abs(friendlyKingX - x)), 5) * 2 * w;
+							
+							kingProximity += Math.min(Math.max(Math.abs(opponentKingY - y + 1 * m), Math.abs(opponentKingX - x)), 5) * 19 / 4 * w;
+							
+							if(rank != 6) {
+								kingProximity -= Math.min(Math.max(Math.abs(friendlyKingY - y + 2 * m), Math.abs(friendlyKingX - x)), 5) * w;
+							}
+							
+							score += kingProximity;
+						}
+					}
+					
+					score += endgame ? PASSED_RANK_BONUS_EG[rank] : PASSED_RANK_BONUS_MG[rank];
+					
+					score += getFreeAdvanceBonus(b, side, square, rank, up);
+					
+					score -= (endgame ? 8 : 11) * Math.min(x, 7 - x);
+				}
+			}
 		}
 		
 		return score;
 	}
 	
-	private static int evalPassedPawns(Board b, int side, boolean endgame) {
-		return 0;
+	private static boolean isCandidatePasser(Board b, int side, int square, int up, int supporterCount, int phalanxCount, int attackerCount, int attackerPushCount) {
+		int opponentSide = Piece.flipSide(side);
+		
+		int friendlyPawn = Piece.getPiece(side, Piece.PAWN);
+		int opponentPawn = Piece.getPiece(opponentSide, Piece.PAWN);
+		
+		int x = square % 8;
+		int y = square / 8;
+		
+		int y1 = 8;
+		int y2 = 8;
+		
+		for(int i = square + up; i >= 0 && i < BoardConstants.BOARD_SIZE_SQ; i += up) {
+			int p = b.getPiece(i);
+			
+			if(p == friendlyPawn) return false;
+			if(p == opponentPawn) y1 = i / 8;
+			
+			if((x != 0 && b.getPiece(i + BitOperations.SHIFT_LEFT) == opponentPawn) || (x != 7 && b.getPiece(i + BitOperations.SHIFT_RIGHT) == opponentPawn)) {
+				y2 = i / 8;
+			}
+		}
+		
+		if(y1 == 8 && y2 >= y - 1) return true;
+		if(y2 < y - 2 || y1 < y - 1) return false;
+		
+		if(y2 >= y && y1 == y - 1 && y < 4) {
+			
+			if(x > 1) {
+				
+				boolean b1 = b.getPiece(square - up + BitOperations.SHIFT_LEFT) == friendlyPawn;
+				boolean b2 = b.getPiece(square + BitOperations.SHIFT_LEFT) != opponentPawn;
+				boolean b3 = b.getPiece(square + up + BitOperations.SHIFT_LEFT * 2) != opponentPawn;
+				
+				if(b1 && b2 && b3) return true;
+			}
+			
+			if(x < 6) {
+				
+				boolean b1 = b.getPiece(square - up + BitOperations.SHIFT_RIGHT) == friendlyPawn;
+				boolean b2 = b.getPiece(square + BitOperations.SHIFT_RIGHT) != opponentPawn;
+				boolean b3 = b.getPiece(square + up + BitOperations.SHIFT_RIGHT * 2) != opponentPawn;
+				
+				if(b1 && b2 && b3) return true;
+			}
+		}
+		
+		if(b.getPiece(square + up) == opponentPawn) return false;
+		
+		return !(attackerCount - supporterCount > 1 || attackerPushCount - phalanxCount > 0 || (attackerCount > 0 && attackerPushCount > 0));
+	}
+	
+	private static int getFreeAdvanceBonus(Board b, int side, int square, int rank, int up) {
+		if(rank < 3 || b.getPiece(square + up) != -1) return 0;
+		
+		int w = rank > 2 ? 5 * rank - 13 : 0;
+		
+		if(w == 0) return 0;
+		
+		int x = square % 8;
+		int y = square / 8;
+		
+		int opponentSide = Piece.flipSide(side);
+		
+		int defended = 0;
+		int unsafe = 0;
+		int adjacentUnsafe = 0;
+		
+		int defendedAt = 0;
+		int unsafeAt = 0;
+		
+		for(int i = square + up; i >= 0 && i < BoardConstants.BOARD_SIZE_SQ; i += up) {
+			if(isUnderXRayAttack(b, i, side)) defended++;
+			if(isUnderXRayAttack(b, i, opponentSide)) unsafe++;
+			if(x != 0 && isUnderXRayAttack(b, i + BitOperations.SHIFT_LEFT, opponentSide)) adjacentUnsafe++;
+			if(x != 7 && isUnderXRayAttack(b, i + BitOperations.SHIFT_RIGHT, opponentSide)) adjacentUnsafe++;
+			
+			if(i == square + up) {
+				defendedAt = defended;
+				unsafeAt = unsafe;
+			}
+		}
+		
+		int friendlyRook = Piece.getPiece(side, Piece.ROOK);
+		int friendlyQueen = Piece.getPiece(side, Piece.QUEEN);
+		
+		int opponentRook = Piece.getPiece(opponentSide, Piece.ROOK);
+		int opponentQueen = Piece.getPiece(opponentSide, Piece.QUEEN);
+		
+		for(int i = square - up; i >= 0 && i < BoardConstants.BOARD_SIZE_SQ; i -= up) {
+			int p = b.getPiece(i);
+			
+			if(p == friendlyRook || p == friendlyQueen) {
+				defendedAt = defended = y;
+			} else if(p == opponentRook || p == opponentQueen) {
+				unsafeAt = unsafe = y;
+			}
+		}
+		
+		int k = (unsafe == 0 && adjacentUnsafe == 0 ? 35 : unsafe == 0 ? 20 : unsafeAt == 0 ? 9 : 0) + (defendedAt != 0 ? 5 : 0);
+		
+		return k * w;
 	}
 	
 	private static int evalTacticalPieces(Board b, int side, boolean endgame) {
+		long occupiedSquares = b.getBitBoard(Piece.WHITE).orReturn(b.getBitBoard(Piece.BLACK));
+		
 		long knights = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.KNIGHT));
 		long bishops = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.BISHOP));
 		long rooks = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.ROOK));
@@ -760,7 +945,65 @@ public class Evaluator {
 		
 		score += BitOperations.countBits(BitOperations.shift(allPawns, down) & minorPieces) * (endgame ? 3 : 18);
 		
+		score -= evalBishopPawns(b, side, occupiedSquares, endgame ? 7 : 3, endgame ? 5 : 4);
 		
+		
+		
+		return score;
+	}
+	
+	private static int evalBishopPawns(Board b, int side, long occupiedSquares, int weight1, int weight2) {
+		int p = Piece.getPiece(side, Piece.BISHOP);
+		
+		int opponentSide = Piece.flipSide(side);
+		
+		long friendlyPawns = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.PAWN));
+		long opponentPawns = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(Piece.PAWN));
+		
+		long centerMask = BitBoard.getFiles(2, 5);
+		
+		long pawnBlockers = friendlyPawns & centerMask;
+		
+		int up = side == Piece.WHITE ? BitOperations.SHIFT_UP : BitOperations.SHIFT_DOWN;
+		
+		pawnBlockers = BitOperations.shift(pawnBlockers, up) & occupiedSquares;
+		
+		int blockedCount = BitOperations.countBits(pawnBlockers);
+		
+		int score = 0;
+		
+		int l = b.getPieceAmount(p);
+		
+		for(int i = 0; i < l; i++) {
+			int square = b.getPieceSquare(p, i);
+			
+			long mask;
+			
+			if((BitBoard.LIGHT_SQUARES & BitBoard.SINGLE_SQUARE[square]) != 0) {
+				mask = BitBoard.LIGHT_SQUARES;
+			} else {
+				mask = BitBoard.DARK_SQUARES;
+			}
+			
+			int n = BitOperations.countBits(friendlyPawns & mask);
+			
+			long squareBehind = BitOperations.shift(BitBoard.SINGLE_SQUARE[square], -up);
+			
+			int x = square % 8;
+			
+			long friendlyAttackerMask = BitBoard.NO_SQUARES;
+			
+			if(x != 0) friendlyAttackerMask |= BitOperations.shift(squareBehind, BitOperations.SHIFT_LEFT);
+			if(x != 7) friendlyAttackerMask |= BitOperations.shift(squareBehind, BitOperations.SHIFT_RIGHT);
+			
+			boolean isPawnAttacked = (friendlyAttackerMask & friendlyPawns) != 0;
+			
+			score += n * (blockedCount + (isPawnAttacked ? 0 : 1)) * weight1;
+			
+			int count = BitOperations.countBits(LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.BISHOP) & opponentPawns);
+			
+			score += count * weight2;
+		}
 		
 		return score;
 	}
@@ -792,6 +1035,22 @@ public class Evaluator {
 	
 	private static int evalThreats(Board b, int side, boolean endgame) {
 		return 0;
+	}
+	
+	private static boolean isUnderXRayAttack(Board b, int square, int attackerSide) {
+		if(b.isUnderAttack(square, Piece.flipSide(attackerSide))) return true;
+		
+		long attackingBishops = b.getBitBoard(attackerSide).andReturn(b.getBitBoard(Piece.BISHOP));
+		
+		long bishopXRayMoves = LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.BISHOP);
+		
+		if((bishopXRayMoves & attackingBishops) != 0) return true;
+		
+		long attackingRooks = b.getBitBoard(attackerSide).andReturn(b.getBitBoard(Piece.ROOK));
+		
+		long rookXRayMoves = LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.ROOK);
+		
+		return (rookXRayMoves & attackingRooks) != 0;
 	}
 	
 }

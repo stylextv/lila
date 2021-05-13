@@ -31,11 +31,11 @@ public class Board {
 	private UndoStructure[] history = new UndoStructure[BoardConstants.MAX_GAME_MOVES];
 	
 	public Board() {
-		for(int i=0; i<bitBoards.length; i++) {
+		for(int i = 0; i < bitBoards.length; i++) {
 			bitBoards[i] = new BitBoard();
 		}
 		
-		for(int i=0; i<history.length; i++) {
+		for(int i = 0; i < history.length; i++) {
 			history[i] = new UndoStructure();
 		}
 		
@@ -45,12 +45,12 @@ public class Board {
 	public void reset() {
 		parseFen(BoardConstants.STARTING_POSITION);
 		
-//		System.out.println("final eval: "+Evaluator.eval(this, Piece.WHITE));
+//		System.out.println("final eval: " + Evaluator.eval(this, Piece.WHITE));
 		
 //		System.out.println("---");
-//		System.out.println(Evaluator.evalMobility(this, Piece.WHITE, Evaluator.MOBILITY_BONUS_MG));
+//		System.out.println(Evaluator.evalPawnStructure(this, Piece.WHITE, true));
 //		System.out.println("---");
-//		System.out.println(Evaluator.evalMobility(this, Piece.BLACK, Evaluator.MOBILITY_BONUS_MG));
+//		System.out.println(Evaluator.evalPawnStructure(this, Piece.BLACK, true));
 	}
 	
 	public void parseFen(String fen) {
@@ -674,7 +674,7 @@ public class Board {
 		int rookPhase = 2;
 		int queenPhase = 4;
 		
-		int totalPhase = knightPhase*4 + bishopPhase*4 + rookPhase*4 + queenPhase*2;
+		int totalPhase = knightPhase * 4 + bishopPhase * 4 + rookPhase * 4 + queenPhase * 2;
 		
 		int phase = totalPhase;
 		

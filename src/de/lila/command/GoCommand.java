@@ -34,9 +34,11 @@ public class GoCommand extends UCICommand {
 			int movesRemaining = s4 == null ? 32 : Integer.parseInt(s4);
 			int timeIncrement = s5 == null ? 0 : Integer.parseInt(s5);
 			
-			timeRemaining += movesRemaining * timeIncrement;
+			int i = movesRemaining - 1;
 			
-			if(s4 != null && movesRemaining > 1) timeRemaining -= TIME_BUFFER * (movesRemaining - 1);
+			timeRemaining += i * timeIncrement;
+			
+			if(s4 != null && movesRemaining > 1) timeRemaining -= TIME_BUFFER * i;
 			
 			time = timeRemaining / movesRemaining;
 		}
