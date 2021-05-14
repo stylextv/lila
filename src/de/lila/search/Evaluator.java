@@ -1011,7 +1011,11 @@ public class Evaluator {
 	private static int evalKingPosition(Board b, int side, boolean endgame) {
 		int opponentSide = Piece.flipSide(side);
 		
-		int score = isOnPawnlessFlank(b, b.getPieceSquare(Piece.getPiece(opponentSide, Piece.KING), 0)) ? (endgame ? 95 : 17) : 0;
+		int opponentKingSquare = b.getPieceSquare(Piece.getPiece(opponentSide, Piece.KING), 0);
+		
+		int opponentKingX = opponentKingSquare % 8;
+		
+		int score = isOnPawnlessFlank(b, opponentKingX) ? (endgame ? 95 : 17) : 0;
 		
 		
 		
