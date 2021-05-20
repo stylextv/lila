@@ -118,7 +118,7 @@ public class Board {
 		if(enPassantSquare.equals("-")) {
 			enPassant = BoardSquare.NONE;
 		} else {
-			enPassant = BoardSquare.getIndexFromNotation(enPassantSquare);
+			enPassant = BoardSquare.getSquareFromNotation(enPassantSquare);
 		}
 		
 		fiftyMoveCounter = Integer.parseInt(split[4]);
