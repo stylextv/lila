@@ -45,7 +45,7 @@ public class Move {
 	}
 	
 	public boolean isTactical() {
-		return captured != 0 || promoted != 0;
+		return captured != 0 || promoted != 0 || flag == MoveFlag.EN_PASSANT;
 	}
 	
 	public int getFrom() {

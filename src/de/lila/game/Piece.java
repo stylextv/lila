@@ -49,7 +49,7 @@ public class Piece {
 	}
 	
 	public static int getPieceFromFenNotation(char ch) {
-		for(int i=0; i<FEN_NOTATIONS.length; i++) {
+		for(int i = 0; i < FEN_NOTATIONS.length; i++) {
 			if(FEN_NOTATIONS[i] == ch) return i;
 		}
 		

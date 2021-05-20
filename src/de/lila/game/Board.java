@@ -137,10 +137,10 @@ public class Board {
 	public String getFen() {
 		String fen = "";
 		
-		for(int y=0; y<8; y++) {
+		for(int y = 0; y < 8; y++) {
 			int emptySquares = 0;
 			
-			for(int x=0; x<8; x++) {
+			for(int x = 0; x < 8; x++) {
 				int p = pieces[y * 8 +x];
 				
 				if(p == Piece.NO_PIECE) {
@@ -158,8 +158,6 @@ public class Board {
 			
 			if(emptySquares != 0) {
 				fen += emptySquares;
-				
-				emptySquares = 0;
 			}
 			
 			if(y != 7) fen = fen + "/";
@@ -237,7 +235,6 @@ public class Board {
 		bitBoards[type].xor(key);
 		
 		positionKey ^= PositionKey.getRandomNumber(pieces[index] * 64 + index);
-		positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + index);
 		
 		pieces[index] = Piece.NO_PIECE;
 	}
@@ -252,7 +249,6 @@ public class Board {
 		
 		pieces[index] = p;
 		
-		positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + index);
 		positionKey ^= PositionKey.getRandomNumber(p * 64 + index);
 	}
 	
