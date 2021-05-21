@@ -688,17 +688,15 @@ public class Board {
 	}
 	
 	private void removeCastlePerms(int side) {
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
+		
 		if(side == Piece.WHITE) {
-			if((castlePerms & Castling.WHITE_KING_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
-			if((castlePerms & Castling.WHITE_QUEEN_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
-			
 			castlePerms |= Castling.WHITE;
 		} else {
-			if((castlePerms & Castling.BLACK_KING_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
-			if((castlePerms & Castling.BLACK_QUEEN_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
-			
 			castlePerms |= Castling.BLACK;
 		}
+		
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 	}
 	
 	private void updateCastlePerms(int side, int from, int to) {
@@ -714,30 +712,28 @@ public class Board {
 		
 		if(from == square || to == square) {
 			int mask;
-			long key;
 			
 			if(side == Piece.WHITE) {
 				if(rookIndex == 0) {
 					mask = Castling.WHITE_QUEEN_SIDE;
-					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
 				} else {
 					mask = Castling.WHITE_KING_SIDE;
-					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
 				}
 			} else {
 				if(rookIndex == 0) {
 					mask = Castling.BLACK_QUEEN_SIDE;
-					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
 				} else {
 					mask = Castling.BLACK_KING_SIDE;
-					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
 				}
 			}
 			
 			if((castlePerms & mask) == 0) {
-				positionKey ^= key;
+				
+				positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 				
 				castlePerms |= mask;
+				
+				positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 			}
 		}
 	}

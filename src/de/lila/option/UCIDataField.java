@@ -23,11 +23,6 @@ public abstract class UCIDataField<T> {
 	
 	public abstract void setValue(String s);
 	
-	@Override
-	public String toString() {
-		return "type " + type + " default " + defaultValue;
-	}
-	
 	public String getType() {
 		return type;
 	}
@@ -44,6 +39,11 @@ public abstract class UCIDataField<T> {
 		this.value = value;
 		
 		if(onValueChange != null) onValueChange.accept(value);
+	}
+	
+	@Override
+	public String toString() {
+		return "type " + type + " default " + defaultValue;
 	}
 	
 }

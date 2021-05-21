@@ -1,20 +1,20 @@
 package de.lila.game;
 
-import java.util.Random;
+import de.lila.util.RandomUtil;
 
 public class PositionKey {
 	
-	private static final long[] RANDOM_NUMBERS = new long[12 * BoardConstants.BOARD_SIZE_SQ + 1 + 8 + 4];
+	private static final long[] RANDOM_NUMBERS = new long[12 * BoardConstants.BOARD_SIZE_SQ + 1 + 8 + 16];
 	
 	public static final int SIDE_OFFSET = 12 * 64;
 	public static final int EN_PASSANT_OFFSET = 12 * 64 + 1;
 	public static final int CASTLING_OFFSET = 12 * 64 + 1 + 8;
 	
 	public static void init() {
-		Random random = new Random(1070372);
+		RandomUtil.setSeed(1070372);
 		
 		for(int i = 0; i < RANDOM_NUMBERS.length; i++) {
-			RANDOM_NUMBERS[i] = random.nextLong();
+			RANDOM_NUMBERS[i] = RandomUtil.next();
 		}
 	}
 	
@@ -25,7 +25,7 @@ public class PositionKey {
 	public static long generatePositionKeySlow(Board b) {
 		long key = 0;
 		
-		for(int i=0; i<b.getPieces().length; i++) {
+		for(int i = 0; i < b.getPieces().length; i++) {
 			int p = b.getPieces()[i];
 			
 			if(p != Piece.NO_PIECE) key ^= PositionKey.getRandomNumber(p * 64 + i);
@@ -36,12 +36,7 @@ public class PositionKey {
 		
 		int castlePerms = b.getCastlePerms();
 		
-		if(castlePerms != 0) {
-			if((castlePerms & Castling.WHITE_KING_SIDE) != 0) key ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
-			if((castlePerms & Castling.WHITE_QUEEN_SIDE) != 0) key ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
-			if((castlePerms & Castling.BLACK_KING_SIDE) != 0) key ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
-			if((castlePerms & Castling.BLACK_QUEEN_SIDE) != 0) key ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
-		}
+		key ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 		
 		return key;
 	}
