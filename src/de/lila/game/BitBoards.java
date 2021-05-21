@@ -72,8 +72,8 @@ public class BitBoards {
 			
 			long l = NO_SQUARES;
 			
-			if(x > 0) l |= BitOperations.shift(FILE_A, BitOperations.SHIFT_RIGHT * (x - 1));
-			if(x < 7) l |= BitOperations.shift(FILE_A, BitOperations.SHIFT_RIGHT * (x + 1));
+			if(x > 0) l |= getFile(x - 1);
+			if(x < 7) l |= getFile(x + 1);
 			
 			ADJACENT_FILES[x] = l;
 		}
@@ -82,13 +82,13 @@ public class BitBoards {
 	public static long getRank(int square) {
 		int y = square / 8;
 		
-		return BitOperations.shift(RANK_8, BitOperations.SHIFT_DOWN * y);
+		return getRanks(y, y);
 	}
 	
 	public static long getFile(int square) {
 		int x = square % 8;
 		
-		return BitOperations.shift(FILE_A, BitOperations.SHIFT_RIGHT * x);
+		return getFiles(x, x);
 	}
 	
 	public static long getRanks(int fromY, int toY) {
