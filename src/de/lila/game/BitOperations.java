@@ -49,7 +49,7 @@ public class BitOperations {
 		long newBoard = l;
 		
 		for(int i = 0; i < n; i++) {
-			newBoard = ((newBoard << 1) & (~BitBoard.FILE_A));
+			newBoard = ((newBoard << 1) & (~BitBoards.FILE_A));
 		}
 		return newBoard;
 	}
@@ -58,7 +58,7 @@ public class BitOperations {
 		long newBoard = l;
 		
 		for(int i = 0; i < n; i++) {
-			newBoard = ((newBoard >>> 1) & (~BitBoard.FILE_H));
+			newBoard = ((newBoard >>> 1) & (~BitBoards.FILE_H));
 		}
 		return newBoard;
 	}

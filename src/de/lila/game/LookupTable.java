@@ -358,7 +358,7 @@ public class LookupTable {
 		for(int i = 0; i < bits; i++) {
 			int bitPos = BitOperations.bitScanForward(mask);
 			
-			mask ^= BitBoard.SINGLE_SQUARE[bitPos];
+			mask ^= BitBoards.SINGLE_SQUARE[bitPos];
 			
 			if((index & (1l << i)) != 0) {
 				blockers |= (1l << bitPos);
@@ -421,8 +421,11 @@ public class LookupTable {
 	}
 	
 	public static long getSliderMoves(int square, long occupiedSquares, int type) {
-		if(type == Piece.BISHOP) return getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
-		else return getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+		if(type == Piece.BISHOP) {
+			return getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+		} else {
+			return getSliderMoves(square, occupiedSquares, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+		}
 	}
 	
 	private static long getSliderMoves(int square, long occupiedSquares, long[] moveTable, long[] magicValues, int[] magicIndices, long[][] finalMoveTable) {

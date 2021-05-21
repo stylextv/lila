@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 
 import de.lila.search.SearchExecutor;
 import de.lila.command.UCIController;
+import de.lila.game.BitBoards;
 import de.lila.game.LookupTable;
 import de.lila.game.PositionKey;
 import de.lila.option.Options;
@@ -35,6 +36,8 @@ public class Main {
 	}
 	
 	private static void init() {
+		BitBoards.init();
+		
 		LookupTable.init();
 		
 		PositionKey.init();

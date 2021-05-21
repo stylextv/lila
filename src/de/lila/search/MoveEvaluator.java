@@ -1,6 +1,6 @@
 package de.lila.search;
 
-import de.lila.game.BitBoard;
+import de.lila.game.BitBoards;
 import de.lila.game.Board;
 import de.lila.game.Move;
 import de.lila.game.MoveList;
@@ -69,7 +69,7 @@ public class MoveEvaluator {
 			
 			if(pieceType != Piece.PAWN) {
 				
-				boolean attackedByPawns = (b.attackedBy(opponentPawn) & BitBoard.SINGLE_SQUARE[m.getTo()]) != 0;
+				boolean attackedByPawns = (b.attackedBy(opponentPawn) & BitBoards.SINGLE_SQUARE[m.getTo()]) != 0;
 				
 				if(attackedByPawns) score -= ATTACKED_BY_PAWN_PENALTY;
 			}

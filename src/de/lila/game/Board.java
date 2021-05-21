@@ -79,7 +79,7 @@ public class Board {
 				int side = Piece.getSideOfPiece(p);
 				int type = Piece.getTypeOfPiece(p);
 				
-				long key = BitBoard.SINGLE_SQUARE[square];
+				long key = BitBoards.SINGLE_SQUARE[square];
 				
 				bitBoards[side].xor(key);
 				bitBoards[type].xor(key);
@@ -229,7 +229,7 @@ public class Board {
 	}
 	
 	private void clearSquare(int index, int side, int type) {
-		long key = BitBoard.SINGLE_SQUARE[index];
+		long key = BitBoards.SINGLE_SQUARE[index];
 		
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
@@ -240,7 +240,7 @@ public class Board {
 	}
 	
 	private void setPiece(int index, int side, int type) {
-		long key = BitBoard.SINGLE_SQUARE[index];
+		long key = BitBoards.SINGLE_SQUARE[index];
 		
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
@@ -453,7 +453,7 @@ public class Board {
 	}
 	
 	public boolean isUnderAttack(int square, int defenderSide) {
-		long mask = BitBoard.SINGLE_SQUARE[square];
+		long mask = BitBoards.SINGLE_SQUARE[square];
 		
 		return (attackedBy(Piece.flipSide(defenderSide), Piece.ALL_PIECES) & mask) != 0;
 	}
@@ -544,8 +544,8 @@ public class Board {
 		long attacksLeft = BitOperations.shift(squares, BitOperations.SHIFT_LEFT);
 		long attacksRight = BitOperations.shift(squares, BitOperations.SHIFT_RIGHT);
 		
-		attacksLeft &= BitOperations.inverse(BitBoard.FILE_H);
-		attacksRight &= BitOperations.inverse(BitBoard.FILE_A);
+		attacksLeft &= BitOperations.inverse(BitBoards.FILE_H);
+		attacksRight &= BitOperations.inverse(BitBoards.FILE_A);
 		
 		attackedSquares[p] = attacksLeft | attacksRight;
 	}
@@ -564,7 +564,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BitBoard.SINGLE_SQUARE[square];
+			squares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[p] = attacks;
@@ -584,7 +584,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BitBoard.SINGLE_SQUARE[square];
+			squares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[p] = attacks;
@@ -604,7 +604,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BitBoard.SINGLE_SQUARE[square];
+			squares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[p] = attacks;
@@ -626,7 +626,7 @@ public class Board {
 			
 			attacks |= moves;
 			
-			squares ^= BitBoard.SINGLE_SQUARE[square];
+			squares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		attackedSquares[p] = attacks;
@@ -690,11 +690,7 @@ public class Board {
 	private void removeCastlePerms(int side) {
 		positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 		
-		if(side == Piece.WHITE) {
-			castlePerms |= Castling.WHITE;
-		} else {
-			castlePerms |= Castling.BLACK;
-		}
+		castlePerms |= side == Piece.WHITE ? Castling.WHITE : Castling.BLACK;
 		
 		positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + castlePerms);
 	}
@@ -711,20 +707,11 @@ public class Board {
 		else square = BoardConstants.RIGHT_ROOK_START_POSITION[side];
 		
 		if(from == square || to == square) {
-			int mask;
 			
-			if(side == Piece.WHITE) {
-				if(rookIndex == 0) {
-					mask = Castling.WHITE_QUEEN_SIDE;
-				} else {
-					mask = Castling.WHITE_KING_SIDE;
-				}
-			} else {
-				if(rookIndex == 0) {
-					mask = Castling.BLACK_QUEEN_SIDE;
-				} else {
-					mask = Castling.BLACK_KING_SIDE;
-				}
+			int mask = side == Piece.WHITE ? Castling.WHITE_KING_SIDE : Castling.BLACK_KING_SIDE;
+			
+			if(rookIndex == 0) {
+				mask <<= 1;
 			}
 			
 			if((castlePerms & mask) == 0) {

@@ -22,7 +22,7 @@ public class MoveGenerator {
 		
 		addPawnMoves(b, list, side, filter, opponentSide, facing, emptySquares);
 		addKnightMoves(b, list, side, filter, possibleSquares);
-		addKingMoves(b, list, side, filter, possibleSquares, emptySquares);
+		addKingMoves(b, list, side, filter, possibleSquares, occupiedSquares);
 		
 		addSliderMoves(b, list, side, filter, possibleSquares, occupiedSquares, Piece.BISHOP);
 		addSliderMoves(b, list, side, filter, possibleSquares, occupiedSquares, Piece.ROOK);
@@ -44,14 +44,14 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing, square, 0, MoveFlag.NONE);
 			
-			possiblePawnMovesAdd ^= BitBoard.SINGLE_SQUARE[square];
+			possiblePawnMovesAdd ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		if(filter == MoveFilter.ALL_MOVES) {
 			
 			long possiblePawnDoubleMoves = possiblePawnMoves;
-			if(side == Piece.WHITE) possiblePawnDoubleMoves &= BitBoard.RANK_3;
-			else possiblePawnDoubleMoves &= BitBoard.RANK_6;
+			if(side == Piece.WHITE) possiblePawnDoubleMoves &= BitBoards.RANK_3;
+			else possiblePawnDoubleMoves &= BitBoards.RANK_6;
 			
 			possiblePawnDoubleMoves = BitOperations.shift(possiblePawnDoubleMoves, facing * BitOperations.SHIFT_DOWN);
 			
@@ -62,7 +62,7 @@ public class MoveGenerator {
 				
 				list.addMove(square - BitOperations.SHIFT_DOWN * 2 * facing, square, 0, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
 				
-				possiblePawnDoubleMoves ^= BitBoard.SINGLE_SQUARE[square];
+				possiblePawnDoubleMoves ^= BitBoards.SINGLE_SQUARE[square];
 			}
 		}
 		
@@ -71,14 +71,14 @@ public class MoveGenerator {
 		long pawnAttacksLeft = BitOperations.shift(pawnMoves, BitOperations.SHIFT_LEFT);
 		long pawnAttacksRight = BitOperations.shift(pawnMoves, BitOperations.SHIFT_RIGHT);
 		
-		pawnAttacksLeft &= BitOperations.inverse(BitBoard.FILE_H);
-		pawnAttacksRight &= BitOperations.inverse(BitBoard.FILE_A);
+		pawnAttacksLeft &= BitOperations.inverse(BitBoards.FILE_H);
+		pawnAttacksRight &= BitOperations.inverse(BitBoards.FILE_A);
 		
 		if(filter == MoveFilter.ALL_MOVES) {
 			int enPassant = b.getEnPassant();
 			
 			if(enPassant != BoardSquare.NONE) {
-				long moveTo = BitBoard.SINGLE_SQUARE[enPassant];
+				long moveTo = BitBoards.SINGLE_SQUARE[enPassant];
 				
 				if((pawnAttacksLeft & moveTo) != 0) {
 					list.addMove(enPassant - BitOperations.SHIFT_DOWN * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
@@ -98,7 +98,7 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing + 1, square, b.getPieceType(square), MoveFlag.NONE);
 			
-			pawnAttacksLeft ^= BitBoard.SINGLE_SQUARE[square];
+			pawnAttacksLeft ^= BitBoards.SINGLE_SQUARE[square];
 		}
 		
 		while(pawnAttacksRight != 0) {
@@ -106,7 +106,7 @@ public class MoveGenerator {
 			
 			addPawnMove(list, side, filter, square - BitOperations.SHIFT_DOWN * facing - 1, square, b.getPieceType(square), MoveFlag.NONE);
 			
-			pawnAttacksRight ^= BitBoard.SINGLE_SQUARE[square];
+			pawnAttacksRight ^= BitBoards.SINGLE_SQUARE[square];
 		}
 	}
 	
@@ -145,14 +145,14 @@ public class MoveGenerator {
 					list.addMove(square, to, captured, 0, MoveFlag.NONE);
 				}
 				
-				moves ^= BitBoard.SINGLE_SQUARE[to];
+				moves ^= BitBoards.SINGLE_SQUARE[to];
 			}
 			
-			knightSquares ^= BitBoard.SINGLE_SQUARE[square];
+			knightSquares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 	}
 	
-	private static void addKingMoves(Board b, MoveList list, int side, int filter, long possibleSquares, long emptySquares) {
+	private static void addKingMoves(Board b, MoveList list, int side, int filter, long possibleSquares, long occupiedSquares) {
 		long kingSquares = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.KING));
 		
 		int square = BitOperations.bitScanForward(kingSquares);
@@ -168,7 +168,7 @@ public class MoveGenerator {
 				list.addMove(square, to, captured, 0, MoveFlag.NONE);
 			}
 			
-			moves ^= BitBoard.SINGLE_SQUARE[to];
+			moves ^= BitBoards.SINGLE_SQUARE[to];
 		}
 		
 		if(filter == MoveFilter.TACTICAL_MOVES) return;
@@ -176,42 +176,36 @@ public class MoveGenerator {
 		if(side == Piece.WHITE) {
 			
 			if((b.getCastlePerms() & Castling.WHITE_QUEEN_SIDE) == 0) {
-				addCastlingMove(b, list, side, square, emptySquares, -1, MoveFlag.CASTLING_QUEEN_SIDE);
+				addCastlingMove(b, list, side, square, occupiedSquares, -1, MoveFlag.CASTLING_QUEEN_SIDE);
 			}
+			
 			if((b.getCastlePerms() & Castling.WHITE_KING_SIDE) == 0) {
-				addCastlingMove(b, list, side, square, emptySquares, 1, MoveFlag.CASTLING_KING_SIDE);
+				addCastlingMove(b, list, side, square, occupiedSquares, 1, MoveFlag.CASTLING_KING_SIDE);
 			}
 			
 		} else {
 			
 			if((b.getCastlePerms() & Castling.BLACK_QUEEN_SIDE) == 0) {
-				addCastlingMove(b, list, side, square, emptySquares, -1, MoveFlag.CASTLING_QUEEN_SIDE);
+				addCastlingMove(b, list, side, square, occupiedSquares, -1, MoveFlag.CASTLING_QUEEN_SIDE);
 			}
+			
 			if((b.getCastlePerms() & Castling.BLACK_KING_SIDE) == 0) {
-				addCastlingMove(b, list, side, square, emptySquares, 1, MoveFlag.CASTLING_KING_SIDE);
+				addCastlingMove(b, list, side, square, occupiedSquares, 1, MoveFlag.CASTLING_KING_SIDE);
 			}
 		}
 	}
 	
-	private static void addCastlingMove(Board b, MoveList list, int side, int from, long emptySquares, int dir, int flag) {
+	private static void addCastlingMove(Board b, MoveList list, int side, int from, long occupiedSquares, int dir, int flag) {
 		int to = from + dir * 2;
 		
-		int square = from;
+		long mask = BitBoards.getRank(from) & BitBoards.getFiles((from + dir) % 8, flag == MoveFlag.CASTLING_QUEEN_SIDE ? 1 : 6);
 		
-		while(true) {
-			square += dir;
-			
-			int x = square % 8;
-			
-			if(x == 0 || x == 7) break;
-			
-			if((emptySquares & BitBoard.SINGLE_SQUARE[square]) == 0) {
-				return;
-			}
+		if((occupiedSquares & mask) != 0) {
+			return;
 		}
 		
 		for(int i = 0; i < 3; i++) {
-			square = from + dir * i;
+			int square = from + dir * i;
 			
 			if(b.isUnderAttack(square, side)) {
 				return;
@@ -240,10 +234,10 @@ public class MoveGenerator {
 					list.addMove(square, to, captured, 0, MoveFlag.NONE);
 				}
 				
-				moves ^= BitBoard.SINGLE_SQUARE[to];
+				moves ^= BitBoards.SINGLE_SQUARE[to];
 			}
 			
-			squares ^= BitBoard.SINGLE_SQUARE[square];
+			squares ^= BitBoards.SINGLE_SQUARE[square];
 		}
 	}
 	

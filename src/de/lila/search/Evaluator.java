@@ -1,6 +1,6 @@
 package de.lila.search;
 
-import de.lila.game.BitBoard;
+import de.lila.game.BitBoards;
 import de.lila.game.BitOperations;
 import de.lila.game.Board;
 import de.lila.game.BoardConstants;
@@ -467,7 +467,7 @@ public class Evaluator {
 	private static int evalMobility(Board b, int side, int[][] tables) {
 		int opponentSide = Piece.flipSide(side);
 		
-		long mobilityArea = BitBoard.ALL_SQUARES;
+		long mobilityArea = BitBoards.ALL_SQUARES;
 		
 		mobilityArea &= BitOperations.inverse(b.getBitBoard(side).andReturn(b.getBitBoard(Piece.KING)));
 		mobilityArea &= BitOperations.inverse(b.getBitBoard(side).andReturn(b.getBitBoard(Piece.QUEEN)));
@@ -482,7 +482,7 @@ public class Evaluator {
 		
 		blockedSquares = BitOperations.shift(blockedSquares, down);
 		
-		long excludedPawns = friendlyPawns & (blockedSquares | BitBoard.getLowerRanks(side == Piece.WHITE ? 4 * 8 : 3 * 8, down));
+		long excludedPawns = friendlyPawns & (blockedSquares | BitBoards.getLowerRanks(side == Piece.WHITE ? 4 * 8 : 3 * 8, down));
 		
 		mobilityArea &= BitOperations.inverse(excludedPawns);
 		
@@ -529,7 +529,7 @@ public class Evaluator {
 			
 			blockers |= pinnedPieces;
 			
-			attackingBishopSliders ^= BitBoard.SINGLE_SQUARE[attackingFrom];
+			attackingBishopSliders ^= BitBoards.SINGLE_SQUARE[attackingFrom];
 		}
 		
 		while(attackingRookSliders != 0) {
@@ -541,7 +541,7 @@ public class Evaluator {
 			
 			blockers |= pinnedPieces;
 			
-			attackingRookSliders ^= BitBoard.SINGLE_SQUARE[attackingFrom];
+			attackingRookSliders ^= BitBoards.SINGLE_SQUARE[attackingFrom];
 		}
 		
 		return blockers;
@@ -638,7 +638,7 @@ public class Evaluator {
 		
 		int bonus = BitOperations.countBits(safe) + BitOperations.countBits(behind & safe & BitOperations.inverse(b.attackedBy(opponentSide, Piece.ALL_PIECES)));
 		
-		long doublePawnAttacks = BitBoard.getDoublePawnAttacks(opponentSide, opponentPawns);
+		long doublePawnAttacks = BitBoards.getDoublePawnAttacks(opponentSide, opponentPawns);
 		
 		int blockedCount = BitOperations.countBits(BitOperations.shift(friendlyPawns, -down) & (opponentPawns | doublePawnAttacks));
 		
@@ -660,8 +660,8 @@ public class Evaluator {
 		long friendlyPawns = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.PAWN));
 		long opponentPawns = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(Piece.PAWN));
 		
-		long leftSquares = BitOperations.shift(friendlyPawns, BitOperations.SHIFT_LEFT) & BitOperations.inverse(BitBoard.FILE_H);
-		long rightSquares = BitOperations.shift(friendlyPawns, BitOperations.SHIFT_RIGHT) & BitOperations.inverse(BitBoard.FILE_A);
+		long leftSquares = BitOperations.shift(friendlyPawns, BitOperations.SHIFT_LEFT) & BitOperations.inverse(BitBoards.FILE_H);
+		long rightSquares = BitOperations.shift(friendlyPawns, BitOperations.SHIFT_RIGHT) & BitOperations.inverse(BitBoards.FILE_A);
 		
 		long phalanxPawns = friendlyPawns & (leftSquares | rightSquares);
 		
@@ -672,20 +672,20 @@ public class Evaluator {
 		for(int i=0; i<b.getPieceAmount(friendlyPawn); i++) {
 			int square = b.getPieceSquare(friendlyPawn, i);
 			
-			long rankMask = BitBoard.getRank(square);
-			long fileMask = BitBoard.getFile(square);
+			long rankMask = BitBoards.getRank(square);
+			long fileMask = BitBoards.getFile(square);
 			
-			long adjacentFiles = BitBoard.getAdjacentFiles(square);
+			long adjacentFiles = BitBoards.getAdjacentFiles(square);
 			
 			long neighbours = friendlyPawns & adjacentFiles;
 			
 			long opponentNeighbours = opponentPawns & adjacentFiles;
 			
-			long supportedBy = neighbours & BitBoard.getRank(square - up);
+			long supportedBy = neighbours & BitBoards.getRank(square - up);
 			
-			boolean isPhalanx = (BitBoard.SINGLE_SQUARE[square] & phalanxPawns) != 0;
+			boolean isPhalanx = (BitBoards.SINGLE_SQUARE[square] & phalanxPawns) != 0;
 			
-			long upperRanks = BitBoard.getLowerRanks(square, up);
+			long upperRanks = BitBoards.getLowerRanks(square, up);
 			
 			boolean isOpposed = (opponentPawns & fileMask & upperRanks) != 0;
 			
@@ -693,17 +693,17 @@ public class Evaluator {
 			
 			boolean isIsolated = (friendlyPawns & adjacentFiles) == 0;
 			
-			long advancingMask = BitBoard.SINGLE_SQUARE[square + up];
+			long advancingMask = BitBoards.SINGLE_SQUARE[square + up];
 			
 			boolean blocked = (opponentPawns & advancingMask) != 0;
 			
 			boolean isAdvancingUnsafe = blocked || (b.attackedBy(opponentPawn) & advancingMask) != 0;
 			
-			boolean isBackward = (BitBoard.getLowerRanks(square + up, -up) & adjacentFiles & friendlyPawns) == 0 && isAdvancingUnsafe;
+			boolean isBackward = (BitBoards.getLowerRanks(square + up, -up) & adjacentFiles & friendlyPawns) == 0 && isAdvancingUnsafe;
 			
 			boolean isWeak = isIsolated || isBackward;
 			
-			boolean isDoubled = (friendlyPawns & fileMask & BitBoard.getLowerRanks(square, -up)) != 0;
+			boolean isDoubled = (friendlyPawns & fileMask & BitBoards.getLowerRanks(square, -up)) != 0;
 			
 			boolean isDoubledIsolated = isIsolated && isDoubled && isOpposed && (upperRanks & opponentNeighbours) == 0;
 			
@@ -732,8 +732,8 @@ public class Evaluator {
 				score -= endgame ? 27 : 13;
 			}
 			
-			int attackerCount = BitOperations.countBits(opponentNeighbours & BitBoard.getRank(square + up));
-			int attackerPushCount = BitOperations.countBits(opponentNeighbours & BitBoard.getRank(square + up * 2));
+			int attackerCount = BitOperations.countBits(opponentNeighbours & BitBoards.getRank(square + up));
+			int attackerPushCount = BitOperations.countBits(opponentNeighbours & BitBoards.getRank(square + up * 2));
 			
 			if(endgame && supportedBy == 0 && attackerCount == 2) {
 				score -= 56;
@@ -960,7 +960,7 @@ public class Evaluator {
 		long friendlyPawns = b.getBitBoard(side).andReturn(b.getBitBoard(Piece.PAWN));
 		long opponentPawns = b.getBitBoard(opponentSide).andReturn(b.getBitBoard(Piece.PAWN));
 		
-		long centerMask = BitBoard.getFiles(2, 5);
+		long centerMask = BitBoards.getFiles(2, 5);
 		
 		long pawnBlockers = friendlyPawns & centerMask;
 		
@@ -979,19 +979,19 @@ public class Evaluator {
 			
 			long mask;
 			
-			if((BitBoard.LIGHT_SQUARES & BitBoard.SINGLE_SQUARE[square]) != 0) {
-				mask = BitBoard.LIGHT_SQUARES;
+			if((BitBoards.LIGHT_SQUARES & BitBoards.SINGLE_SQUARE[square]) != 0) {
+				mask = BitBoards.LIGHT_SQUARES;
 			} else {
-				mask = BitBoard.DARK_SQUARES;
+				mask = BitBoards.DARK_SQUARES;
 			}
 			
 			int n = BitOperations.countBits(friendlyPawns & mask);
 			
-			long squareBehind = BitOperations.shift(BitBoard.SINGLE_SQUARE[square], -up);
+			long squareBehind = BitOperations.shift(BitBoards.SINGLE_SQUARE[square], -up);
 			
 			int x = square % 8;
 			
-			long friendlyAttackerMask = BitBoard.NO_SQUARES;
+			long friendlyAttackerMask = BitBoards.NO_SQUARES;
 			
 			if(x != 0) friendlyAttackerMask |= BitOperations.shift(squareBehind, BitOperations.SHIFT_LEFT);
 			if(x != 7) friendlyAttackerMask |= BitOperations.shift(squareBehind, BitOperations.SHIFT_RIGHT);
@@ -1000,7 +1000,7 @@ public class Evaluator {
 			
 			score += n * (blockedCount + (isPawnAttacked ? 0 : 1)) * weight1;
 			
-			int count = BitOperations.countBits(LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.BISHOP) & opponentPawns);
+			int count = BitOperations.countBits(LookupTable.getSliderMoves(square, BitBoards.NO_SQUARES, Piece.BISHOP) & opponentPawns);
 			
 			score += count * weight2;
 		}
@@ -1032,7 +1032,7 @@ public class Evaluator {
 		int fromX = x == 7 ? 5 : Math.max(x - 1, 0);
 		int toX = Math.min(x + 2, 7);
 		
-		long mask = BitBoard.getFiles(fromX, toX);
+		long mask = BitBoards.getFiles(fromX, toX);
 		
 		return (pawns & mask) == 0;
 	}
@@ -1046,13 +1046,13 @@ public class Evaluator {
 		
 		long attackingBishops = b.getBitBoard(attackerSide).andReturn(b.getBitBoard(Piece.BISHOP));
 		
-		long bishopXRayMoves = LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.BISHOP);
+		long bishopXRayMoves = LookupTable.getSliderMoves(square, BitBoards.NO_SQUARES, Piece.BISHOP);
 		
 		if((bishopXRayMoves & attackingBishops) != 0) return true;
 		
 		long attackingRooks = b.getBitBoard(attackerSide).andReturn(b.getBitBoard(Piece.ROOK));
 		
-		long rookXRayMoves = LookupTable.getSliderMoves(square, BitBoard.NO_SQUARES, Piece.ROOK);
+		long rookXRayMoves = LookupTable.getSliderMoves(square, BitBoards.NO_SQUARES, Piece.ROOK);
 		
 		return (rookXRayMoves & attackingRooks) != 0;
 	}
